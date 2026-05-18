@@ -1,3 +1,9 @@
+import { AuthCard } from "@/components/AuthCard";
+
 export default function Home() {
-  return <main className="min-h-screen bg-background" />;
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-background p-4">
+      <AuthCard />
+    </main>
+  );
 }
