@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getCurrentUser, type CurrentUser } from "@/lib/auth-api";
+import { getCurrentUser, refreshAuth, type CurrentUser } from "@/lib/auth-api";
 import Image from "next/image";
 
 export function UserBalance() {
@@ -12,13 +12,12 @@ export function UserBalance() {
     let isMounted = true;
 
     async function loadUser() {
-      const accessToken = sessionStorage.getItem("accessToken");
-
-      if (!accessToken) {
-        throw new Error("Missing access token");
+      try {
+        return await getCurrentUser();
+      } catch {
+        await refreshAuth();
+        return getCurrentUser();
       }
-
-      return getCurrentUser(accessToken);
     }
 
     loadUser()

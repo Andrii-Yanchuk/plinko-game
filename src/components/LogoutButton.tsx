@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { clearAuthSession, logout } from "@/lib/auth-api";
+import { logout } from "@/lib/auth-api";
 
 export function LogoutButton() {
   const router = useRouter();
@@ -15,7 +15,6 @@ export function LogoutButton() {
     try {
       await logout();
     } finally {
-      clearAuthSession();
       router.push("/login");
     }
   }

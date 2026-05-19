@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type SyntheticEvent, useState } from "react";
-import { login, saveAuthSession } from "@/lib/auth-api";
+import { login } from "@/lib/auth-api";
 
 export function AuthCard() {
   const router = useRouter();
@@ -19,8 +19,7 @@ export function AuthCard() {
     setIsLoading(true);
 
     try {
-      const auth = await login({ email, password });
-      saveAuthSession(auth);
+      await login({ email, password });
       router.push("/game");
     } catch (error) {
       setError(error instanceof Error ? error.message : "Unable to sign in");

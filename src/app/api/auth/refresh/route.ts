@@ -1,8 +1,10 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import {
+  ACCESS_TOKEN_COOKIE,
   API_BASE_URL,
   REFRESH_TOKEN_COOKIE,
+  accessTokenCookieOptions,
   refreshTokenCookieOptions,
 } from "@/lib/auth-config";
 
@@ -31,9 +33,14 @@ export async function POST() {
     return NextResponse.json(data, { status: backendResponse.status });
   }
 
-  const { refreshToken: nextRefreshToken, ...auth } = data;
+  const { accessToken, refreshToken: nextRefreshToken, ...auth } = data;
   const response = NextResponse.json(auth);
 
+  response.cookies.set(
+    ACCESS_TOKEN_COOKIE,
+    accessToken,
+    accessTokenCookieOptions,
+  );
   response.cookies.set(
     REFRESH_TOKEN_COOKIE,
     nextRefreshToken,

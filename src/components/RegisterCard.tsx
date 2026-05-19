@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type SyntheticEvent, useState } from "react";
-import { register, saveAuthSession } from "@/lib/auth-api";
+import { register } from "@/lib/auth-api";
 
 export function RegisterCard() {
   const router = useRouter();
@@ -19,8 +19,7 @@ export function RegisterCard() {
     setIsLoading(true);
 
     try {
-      const auth = await register({ email, password });
-      saveAuthSession(auth);
+      await register({ email, password });
       router.push("/game");
     } catch (error) {
       setError(

@@ -10,7 +10,6 @@ export type CurrentUser = AuthUser & {
 
 export type AuthResponse = {
   user: AuthUser;
-  accessToken: string;
 };
 
 type AuthPayload = {
@@ -71,13 +70,10 @@ export async function logout() {
   }
 }
 
-export async function getCurrentUser(accessToken: string) {
+export async function getCurrentUser() {
   const response = await fetch("/api/users/me", {
     method: "GET",
     credentials: "same-origin",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
   });
 
   if (!response.ok) {
@@ -85,14 +81,4 @@ export async function getCurrentUser(accessToken: string) {
   }
 
   return response.json() as Promise<CurrentUser>;
-}
-
-export function saveAuthSession(auth: AuthResponse) {
-  sessionStorage.setItem("accessToken", auth.accessToken);
-  sessionStorage.setItem("user", JSON.stringify(auth.user));
-}
-
-export function clearAuthSession() {
-  sessionStorage.removeItem("accessToken");
-  sessionStorage.removeItem("user");
 }
