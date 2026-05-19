@@ -3,6 +3,11 @@ export type AuthUser = {
   email: string;
 };
 
+export type CurrentUser = AuthUser & {
+  balance: string;
+  createdAt: string;
+};
+
 export type AuthResponse = {
   user: AuthUser;
   accessToken: string;
@@ -64,6 +69,22 @@ export async function logout() {
   if (!response.ok) {
     throw new Error("Unable to sign out");
   }
+}
+
+export async function getCurrentUser(accessToken: string) {
+  const response = await fetch("/api/users/me", {
+    method: "GET",
+    credentials: "same-origin",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Unable to load user profile");
+  }
+
+  return response.json() as Promise<CurrentUser>;
 }
 
 export function saveAuthSession(auth: AuthResponse) {
