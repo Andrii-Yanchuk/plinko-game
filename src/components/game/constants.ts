@@ -13,3 +13,15 @@ export const riskStyles: Record<Risk, string> = {
 export const minRows = 8;
 export const maxRows = 16;
 export const maxBetAmount = 10000;
+
+export const multiplierSlots = [
+  "5.6x",
+  "2.1x",
+  "1.1x",
+  "1x",
+  "0.5x",
+  "1x",
+  "1.1x",
+  "2.1x",
+  "5.6x",
+];

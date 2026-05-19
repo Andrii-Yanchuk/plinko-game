@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { getCurrentUser, type CurrentUser } from "@/lib/auth-api";
+import Image from "next/image";
 
 export function UserBalance() {
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [error, setError] = useState("");
-  console.log("UserBalance rendered, user:", user);
 
   useEffect(() => {
     let isMounted = true;
@@ -38,12 +38,18 @@ export function UserBalance() {
     };
   }, []);
 
+  const balance = user
+    ? Number(user.balance).toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+    : error || "Loading...";
+
   return (
-    <div className="rounded-lg border border-[#2A2F3E] bg-[#141922] px-4 py-2 text-sm">
-      <span className="text-[#8D96A8]">Balance</span>{" "}
-      <span className="font-semibold text-[#F4F7FB]">
-        {user ? user.balance : error || "Loading..."}
-      </span>
+    <div className="inline-flex h-10 items-center gap-2 rounded-[10px] border border-[#2A2F3E] bg-[#1A1F2E] px-4 text-xs">
+      <Image src="./balance-icon.svg" alt="bet-icon" width={20} height={20} />
+      <span className="text-[#8D96A8]">Balance:</span>
+      <span className="font-bold text-[#00E783]">{balance}</span>
     </div>
   );
 }

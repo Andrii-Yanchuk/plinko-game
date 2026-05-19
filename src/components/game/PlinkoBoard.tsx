@@ -1,17 +1,7 @@
 import { LogoutButton } from "@/components/LogoutButton";
+import { multiplierSlots } from "./constants";
 import { HistoryButton } from "./HistoryButton";
-
-const multiplierSlots = [
-  "5.6x",
-  "2.1x",
-  "1.1x",
-  "1x",
-  "0.5x",
-  "1x",
-  "1.1x",
-  "2.1x",
-  "5.6x",
-];
+import { UserBalance } from "../UserBalance";
 
 export function PlinkoBoard() {
   return (
@@ -19,7 +9,7 @@ export function PlinkoBoard() {
       <header className="flex h-14 items-center justify-between border-b border-[#222A3B]/80 px-5">
         <div className="flex items-center gap-5">
           <h1 className="text-2xl font-bold text-white">Plinko</h1>
-          <span>User Balance</span>
+          <UserBalance />
         </div>
         <div className="flex items-center gap-3">
           <HistoryButton />
