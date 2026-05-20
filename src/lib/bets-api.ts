@@ -27,9 +27,20 @@ export type Bet = {
   createdAt: string;
 };
 
-async function readErrorMessage(response: Response) {
+export type BetHistory = {
+  items: Bet[];
+  nextCursor: string | null;
+};
+
+export type GetBetHistoryParams = {
+  cursor?: string;
+  limit?: number;
+  rows?: number;
+};
+
+async function readErrorMessage(response: Response, fallback: string) {
   const error = await response.json().catch(() => null);
-  const message = error?.message ?? error?.error ?? "Unable to place bet";
+  const message = error?.message ?? error?.error ?? fallback;
 
   return Array.isArray(message) ? message.join(", ") : message;
 }
@@ -45,8 +56,38 @@ export async function placeBet(payload: PlaceBetPayload) {
   });
 
   if (!response.ok) {
-    throw new Error(await readErrorMessage(response));
+    throw new Error(await readErrorMessage(response, "Unable to place bet"));
   }
 
   return response.json() as Promise<Bet>;
+}
+
+export async function getBetHistory(params: GetBetHistoryParams = {}) {
+  const searchParams = new URLSearchParams();
+
+  if (params.limit !== undefined) {
+    searchParams.set("limit", String(params.limit));
+  }
+
+  if (params.cursor) {
+    searchParams.set("cursor", params.cursor);
+  }
+
+  if (params.rows !== undefined) {
+    searchParams.set("rows", String(params.rows));
+  }
+
+  const query = searchParams.toString();
+  const response = await fetch(`/api/bets${query ? `?${query}` : ""}`, {
+    method: "GET",
+    credentials: "same-origin",
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      await readErrorMessage(response, "Unable to load bet history"),
+    );
+  }
+
+  return response.json() as Promise<BetHistory>;
 }
