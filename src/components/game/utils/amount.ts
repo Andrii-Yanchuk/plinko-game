@@ -1,10 +1,6 @@
-import type { BetControl } from "./types";
+import type { BetControl } from "../types";
 
-const minimalUnitsPerCredit = 1_000_000;
-
-export function isBlockedBetAmountKey(key: string) {
-  return ["e", "E", "+", "-"].includes(key);
-}
+export const minimalUnitsPerCredit = 1_000_000;
 
 export function getCreditsFromMinimalUnits(amount: string) {
   return Number(amount) / minimalUnitsPerCredit;
@@ -12,10 +8,6 @@ export function getCreditsFromMinimalUnits(amount: string) {
 
 export function getMinimalUnitsFromCredits(amount: string) {
   return Math.round(Number(amount) * minimalUnitsPerCredit).toString();
-}
-
-export function getRowsProgress(rows: number, minRows: number, maxRows: number) {
-  return ((rows - minRows) / (maxRows - minRows)) * 100;
 }
 
 export function getNextBetAmount(
