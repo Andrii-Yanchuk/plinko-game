@@ -2,7 +2,10 @@
 
 import Image from "next/image";
 import { type KeyboardEvent, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { placeBet, type Bet } from "@/lib/bets-api";
+import type { CurrentUser } from "@/lib/auth-api";
+import { queryKeys } from "@/lib/query-keys";
 import {
   betControls,
   maxRows,
@@ -38,9 +41,23 @@ export function GameSidebar({ lastBet, onBetPlaced }: GameSidebarProps) {
   const [selectedRisk, setSelectedRisk] = useState<Risk>("LOW");
   const [betAmount, setBetAmount] = useState("1.00");
   const [rows, setRows] = useState(maxRows);
-  const [isPlacingBet, setIsPlacingBet] = useState(false);
   const [error, setError] = useState("");
+  const queryClient = useQueryClient();
   const rowsProgress = getRowsProgress(rows);
+  const placeBetMutation = useMutation({
+    mutationFn: placeBet,
+    onSuccess: (bet) => {
+      queryClient.setQueryData<CurrentUser>(
+        queryKeys.currentUser,
+        (currentUser) =>
+          currentUser
+            ? { ...currentUser, balance: bet.balanceAfter }
+            : currentUser,
+      );
+      setBetAmount((Number(bet.amount) / 1_000_000).toFixed(2));
+      onBetPlaced(bet);
+    },
+  });
 
   function handleBetAmountKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     if (isBlockedBetAmountKey(event.key)) {
@@ -66,24 +83,18 @@ export function GameSidebar({ lastBet, onBetPlaced }: GameSidebarProps) {
       return;
     }
 
-    setIsPlacingBet(true);
     setError("");
 
     try {
-      const bet = await placeBet({
+      await placeBetMutation.mutateAsync({
         amount,
         rows,
         risk: selectedRisk,
       });
-
-      setBetAmount((Number(amount) / 1_000_000).toFixed(2));
-      onBetPlaced(bet);
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Unable to place bet",
       );
-    } finally {
-      setIsPlacingBet(false);
     }
   }
 
@@ -194,11 +205,11 @@ export function GameSidebar({ lastBet, onBetPlaced }: GameSidebarProps) {
 
       <button
         className="mt-4 h-11 cursor-pointer rounded-lg bg-linear-to-r from-[#00C950] to-[#009966] text-[18px] text-[#F4F7FB] font-bold transition-[box-shadow,opacity] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-        disabled={isPlacingBet}
+        disabled={placeBetMutation.isPending}
         onClick={handleBetClick}
         type="button"
       >
-        {isPlacingBet ? "Placing..." : "Bet"}
+        {placeBetMutation.isPending ? "Placing..." : "Bet"}
       </button>
 
       {error ? (

@@ -1,45 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getCurrentUser, refreshAuth, type CurrentUser } from "@/lib/auth-api";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
+import { getCurrentUser } from "@/lib/auth-api";
+import { queryKeys } from "@/lib/query-keys";
 
 type UserBalanceProps = {
   balance?: string;
 };
 
 export function UserBalance({ balance: balanceOverride }: UserBalanceProps) {
-  const [user, setUser] = useState<CurrentUser | null>(null);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    let isMounted = true;
-
-    async function loadUser() {
-      try {
-        return await getCurrentUser();
-      } catch {
-        await refreshAuth();
-        return getCurrentUser();
-      }
-    }
-
-    loadUser()
-      .then((nextUser) => {
-        if (isMounted) {
-          setUser(nextUser);
-        }
-      })
-      .catch(() => {
-        if (isMounted) {
-          setError("Unable to load balance");
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  const { data: user, isError, isLoading } = useQuery({
+    queryFn: getCurrentUser,
+    queryKey: queryKeys.currentUser,
+  });
 
   const balanceValue = balanceOverride ?? user?.balance;
   const balance = balanceValue
@@ -47,7 +21,11 @@ export function UserBalance({ balance: balanceOverride }: UserBalanceProps) {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       })
-    : error || "Loading...";
+    : isError
+      ? "Unable to load balance"
+      : isLoading
+        ? "Loading..."
+        : "-";
 
   return (
     <div className="inline-flex h-10 items-center gap-2 rounded-[10px] border border-[#2A2F3E] bg-[#1A1F2E] px-4 text-xs">

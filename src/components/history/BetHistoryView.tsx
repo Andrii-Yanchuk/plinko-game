@@ -2,91 +2,45 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import type { Risk } from "@/components/game/types";
-import { getBetHistory, type Bet } from "@/lib/bets-api";
+import { getBetHistory, type BetHistory } from "@/lib/bets-api";
+import { queryKeys } from "@/lib/query-keys";
 import { betHistoryPageSize } from "./constants";
 import { HistoryFilters } from "./HistoryFilters";
 import { HistoryItem } from "./HistoryItem";
 
 export function BetHistoryView() {
-  const [items, setItems] = useState<Bet[]>([]);
-  const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [risk, setRisk] = useState<Risk | "ALL">("ALL");
   const [rows, setRows] = useState("ALL");
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [error, setError] = useState("");
   const selectedRows = rows === "ALL" ? undefined : Number(rows);
 
-  console.log(items);
-
-  const loadHistory = useCallback(
-    async (cursor?: string) => {
-      const history = await getBetHistory({
-        cursor,
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isError,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteQuery<BetHistory, Error>({
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    initialPageParam: undefined as string | undefined,
+    queryFn: ({ pageParam }) =>
+      getBetHistory({
+        cursor: pageParam as string | undefined,
         limit: betHistoryPageSize,
         rows: selectedRows,
-      });
+      }),
+    queryKey: queryKeys.betHistory({ rows: selectedRows }),
+  });
 
-      setItems((currentItems) =>
-        cursor ? [...currentItems, ...history.items] : history.items,
-      );
-      setNextCursor(history.nextCursor);
-    },
-    [selectedRows],
-  );
+  const visibleItems = useMemo(() => {
+    const items = data?.pages.flatMap((page) => page.items) ?? [];
 
-  const visibleItems = useMemo(
-    () => items.filter((item) => risk === "ALL" || item.risk === risk),
-    [items, risk],
-  );
-
-  useEffect(() => {
-    let isMounted = true;
-
-    Promise.resolve()
-      .then(() => {
-        setIsLoading(true);
-        setError("");
-      })
-      .then(() => loadHistory())
-      .catch((error) => {
-        if (isMounted) {
-          setError(
-            error instanceof Error ? error.message : "Unable to load history",
-          );
-        }
-      })
-      .finally(() => {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [loadHistory]);
-
-  async function handleLoadMore() {
-    if (!nextCursor) {
-      return;
-    }
-
-    setIsLoadingMore(true);
-    setError("");
-
-    try {
-      await loadHistory(nextCursor);
-    } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Unable to load more history",
-      );
-    } finally {
-      setIsLoadingMore(false);
-    }
-  }
+    return items.filter((item) => risk === "ALL" || item.risk === risk);
+  }, [data, risk]);
 
   return (
     <main className="min-h-screen bg-[#101725] text-[#F4F7FB]">
@@ -109,9 +63,9 @@ export function BetHistoryView() {
           rows={rows}
         />
 
-        {error ? (
+        {isError ? (
           <p className="rounded-lg border border-[#FB2C36]/50 bg-[#FB2C36]/10 px-4 py-3 text-sm text-[#FDA4AF]">
-            {error}
+            {error.message}
           </p>
         ) : null}
 
@@ -125,20 +79,20 @@ export function BetHistoryView() {
               <HistoryItem bet={bet} key={bet.betId} />
             ))}
           </div>
-        ) : !error ? (
+        ) : !isError ? (
           <div className="rounded-lg border border-[#2A2F3E] bg-[#1A1F2E] p-4 text-sm text-[#8D96A8]">
             No bets found.
           </div>
         ) : null}
 
-        {nextCursor ? (
+        {hasNextPage ? (
           <button
             className="self-center rounded-lg border border-[#2A2F3E] bg-[#1A1F2E] px-5 py-2 text-sm font-medium text-[#D1D5DC] transition-colors hover:bg-[#222A3D] disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={isLoadingMore}
-            onClick={handleLoadMore}
+            disabled={isFetchingNextPage}
+            onClick={() => fetchNextPage()}
             type="button"
           >
-            {isLoadingMore ? "Loading..." : "Load more"}
+            {isFetchingNextPage ? "Loading..." : "Load more"}
           </button>
         ) : null}
       </section>
