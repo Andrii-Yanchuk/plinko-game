@@ -4,17 +4,13 @@ import Image from "next/image";
 import { type KeyboardEvent, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { placeBet, type Bet } from "@/lib/bets-api";
+import type { GameConfig } from "@/lib/game-api";
 import type { CurrentUser } from "@/lib/auth-api";
 import { queryKeys } from "@/lib/query-keys";
+import { betControls, modes, riskStyles } from "./constants";
 import {
-  betControls,
-  maxRows,
-  minRows,
-  modes,
-  risks,
-  riskStyles,
-} from "./constants";
-import {
+  getCreditsFromMinimalUnits,
+  getMinimalUnitsFromCredits,
   getNextBetAmount,
   getRowsProgress,
   isBlockedBetAmountKey,
@@ -22,28 +18,51 @@ import {
 import type { BetControl, GameMode, Risk } from "./types";
 
 type GameSidebarProps = {
+  config?: GameConfig;
   lastBet: Bet | null;
   onBetPlaced: (bet: Bet) => void;
+  onRiskChange: (risk: Risk) => void;
+  onRowsChange: (rows: number) => void;
+  risk: Risk;
+  rows: number;
 };
 
-function formatAmount(value: string) {
+function formatAmount(value: string, minBetAmount: number, maxBetAmount: number) {
   const amount = Number(value);
 
-  if (!Number.isFinite(amount) || amount <= 0) {
+  if (
+    !Number.isFinite(amount) ||
+    amount < minBetAmount ||
+    amount > maxBetAmount
+  ) {
     return null;
   }
 
-  return Math.round(amount * 1_000_000).toString();
+  return getMinimalUnitsFromCredits(value);
 }
 
-export function GameSidebar({ lastBet, onBetPlaced }: GameSidebarProps) {
+export function GameSidebar({
+  config,
+  lastBet,
+  onBetPlaced,
+  onRiskChange,
+  onRowsChange,
+  risk,
+  rows,
+}: GameSidebarProps) {
   const [selectedMode, setSelectedMode] = useState<GameMode>("Manual");
-  const [selectedRisk, setSelectedRisk] = useState<Risk>("LOW");
   const [betAmount, setBetAmount] = useState("1.00");
-  const [rows, setRows] = useState(maxRows);
   const [error, setError] = useState("");
   const queryClient = useQueryClient();
-  const rowsProgress = getRowsProgress(rows);
+  const availableRows = config?.rows ?? [8, 9, 10, 11, 12, 13, 14, 15, 16];
+  const availableRisks = config?.risks ?? (["LOW", "MEDIUM", "HIGH"] as Risk[]);
+  const minRows = Math.min(...availableRows);
+  const maxRows = Math.max(...availableRows);
+  const minBetAmount = config ? getCreditsFromMinimalUnits(config.minBet) : 1;
+  const maxBetAmount = config
+    ? getCreditsFromMinimalUnits(config.maxBet)
+    : 1_000_000;
+  const rowsProgress = getRowsProgress(rows, minRows, maxRows);
   const placeBetMutation = useMutation({
     mutationFn: placeBet,
     onSuccess: (bet) => {
@@ -66,7 +85,12 @@ export function GameSidebar({ lastBet, onBetPlaced }: GameSidebarProps) {
   }
 
   function handleBetControlClick(control: BetControl) {
-    const nextBetAmount = getNextBetAmount(betAmount, control);
+    const nextBetAmount = getNextBetAmount(
+      betAmount,
+      control,
+      minBetAmount,
+      maxBetAmount,
+    );
 
     if (nextBetAmount === null) {
       return;
@@ -76,10 +100,12 @@ export function GameSidebar({ lastBet, onBetPlaced }: GameSidebarProps) {
   }
 
   async function handleBetClick() {
-    const amount = formatAmount(betAmount);
+    const amount = formatAmount(betAmount, minBetAmount, maxBetAmount);
 
     if (!amount) {
-      setError("Enter a valid bet amount");
+      setError(
+        `Enter a bet amount between ${minBetAmount.toFixed(2)} and ${maxBetAmount.toFixed(2)}`,
+      );
       return;
     }
 
@@ -89,7 +115,7 @@ export function GameSidebar({ lastBet, onBetPlaced }: GameSidebarProps) {
       await placeBetMutation.mutateAsync({
         amount,
         rows,
-        risk: selectedRisk,
+        risk,
       });
     } catch (error) {
       setError(
@@ -164,15 +190,15 @@ export function GameSidebar({ lastBet, onBetPlaced }: GameSidebarProps) {
 
       <div className="mt-4 text-[#D1D5DC] text-sm font-medium">Risk</div>
       <div className="mt-3 grid grid-cols-3 gap-2">
-        {risks.map((label) => (
+        {availableRisks.map((label) => (
           <button
             className={`h-9 rounded-lg border-2 text-xs font-semibold transition-colors cursor-pointer ${
-              selectedRisk === label
+              risk === label
                 ? riskStyles[label]
                 : "border-[#263045] bg-[#121827] text-[#D0D6E2] hover:border-[#3A465E]"
             }`}
             key={label}
-            onClick={() => setSelectedRisk(label)}
+            onClick={() => onRiskChange(label)}
             type="button"
           >
             {label}
@@ -190,7 +216,7 @@ export function GameSidebar({ lastBet, onBetPlaced }: GameSidebarProps) {
         type="range"
         min={minRows}
         max={maxRows}
-        onChange={(event) => setRows(Number(event.target.value))}
+        onChange={(event) => onRowsChange(Number(event.target.value))}
         style={{
           background: `linear-gradient(to right, #FAFAFA ${rowsProgress}%, #262626 ${rowsProgress}%)`,
         }}

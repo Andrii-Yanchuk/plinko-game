@@ -1,9 +1,33 @@
 import { LogoutButton } from "@/components/LogoutButton";
-import { multiplierSlots } from "./constants";
+import type { GameConfig } from "@/lib/game-api";
 import { HistoryButton } from "./HistoryButton";
 import { UserBalance } from "../UserBalance";
+import type { Risk } from "./types";
 
-export function PlinkoBoard() {
+type PlinkoBoardProps = {
+  config?: GameConfig;
+  risk: Risk;
+  rows: number;
+};
+
+function getMultiplierTone(index: number, length: number) {
+  const center = (length - 1) / 2;
+  const distanceFromCenter = Math.abs(index - center);
+
+  if (distanceFromCenter <= 1) {
+    return "border-[#00C950] bg-[#06351E] text-[#00E783]";
+  }
+
+  if (index === 0 || index === length - 1) {
+    return "border-[#F59E0B] bg-[#3B220A] text-[#F6A11A]";
+  }
+
+  return "border-[#D7A61E] bg-[#372B0D] text-[#F7C948]";
+}
+
+export function PlinkoBoard({ config, risk, rows }: PlinkoBoardProps) {
+  const multiplierSlots = config?.payoutTables[risk]?.[rows] ?? [];
+
   return (
     <div className="relative flex min-h-140 flex-1 flex-col overflow-hidden bg-[#101725]">
       <header className="flex h-14 items-center justify-between border-b border-[#222A3B]/80 px-5">
@@ -20,7 +44,7 @@ export function PlinkoBoard() {
       <div className="flex flex-1 flex-col items-center justify-start px-4 pt-24">
         <div className="flex flex-col items-center gap-8">
           <div className="flex flex-col items-center gap-11">
-            {Array.from({ length: 8 }, (_, rowIndex) => (
+            {Array.from({ length: rows }, (_, rowIndex) => (
               <div className="flex justify-center gap-8" key={rowIndex}>
                 {Array.from({ length: rowIndex + 2 }, (_, pegIndex) => (
                   <span
@@ -32,24 +56,14 @@ export function PlinkoBoard() {
             ))}
           </div>
 
-          <div className="flex gap-1.5">
+          <div className="flex max-w-full flex-wrap justify-center gap-1.5">
             {multiplierSlots.map((slot, index) => {
-              const isCenter = index === 4;
-              const isEdge =
-                index === 0 || index === multiplierSlots.length - 1;
-
               return (
                 <div
-                  className={`flex h-8 w-12 items-center justify-center rounded-lg border text-xs font-bold ${
-                    isCenter
-                      ? "border-[#00C950] bg-[#06351E] text-[#00E783]"
-                      : isEdge
-                        ? "border-[#F59E0B] bg-[#3B220A] text-[#F6A11A]"
-                        : "border-[#D7A61E] bg-[#372B0D] text-[#F7C948]"
-                  }`}
+                  className={`flex h-8 min-w-12 items-center justify-center rounded-lg border px-2 text-xs font-bold ${getMultiplierTone(index, multiplierSlots.length)}`}
                   key={`${slot}-${index}`}
                 >
-                  {slot}
+                  {slot}x
                 </div>
               );
             })}
