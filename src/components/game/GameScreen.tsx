@@ -35,7 +35,12 @@ export function GameScreen() {
         risk={risk}
         rows={rows}
       />
-      <PlinkoBoard config={gameConfig} risk={risk} rows={rows} />
+      <PlinkoBoard
+        config={gameConfig}
+        lastBet={lastBet}
+        risk={risk}
+        rows={rows}
+      />
     </section>
   );
 }

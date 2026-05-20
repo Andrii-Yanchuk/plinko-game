@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { type KeyboardEvent, useState } from "react";
+import { type KeyboardEvent, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { placeBet, type Bet } from "@/lib/bets-api";
 import type { GameConfig } from "@/lib/game-api";
@@ -27,7 +27,11 @@ type GameSidebarProps = {
   rows: number;
 };
 
-function formatAmount(value: string, minBetAmount: number, maxBetAmount: number) {
+function formatAmount(
+  value: string,
+  minBetAmount: number,
+  maxBetAmount: number,
+) {
   const amount = Number(value);
 
   if (
@@ -41,6 +45,27 @@ function formatAmount(value: string, minBetAmount: number, maxBetAmount: number)
   return getMinimalUnitsFromCredits(value);
 }
 
+function LoadingButtonContent({ children }: { children: string }) {
+  return (
+    <span className="inline-flex items-center justify-center gap-2">
+      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+      {children}
+    </span>
+  );
+}
+
+function parsePositiveNumber(value: string) {
+  const number = Number(value);
+
+  return Number.isFinite(number) && number > 0 ? number : null;
+}
+
+function parseNonNegativeNumber(value: string) {
+  const number = Number(value);
+
+  return Number.isFinite(number) && number >= 0 ? number : null;
+}
+
 export function GameSidebar({
   config,
   lastBet,
@@ -52,7 +77,13 @@ export function GameSidebar({
 }: GameSidebarProps) {
   const [selectedMode, setSelectedMode] = useState<GameMode>("Manual");
   const [betAmount, setBetAmount] = useState("1.00");
+  const [autoBetCount, setAutoBetCount] = useState("10");
+  const [stopOnProfit, setStopOnProfit] = useState("0.00");
+  const [stopOnLoss, setStopOnLoss] = useState("0.00");
+  const [autoProgress, setAutoProgress] = useState({ current: 0, total: 0 });
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
   const [error, setError] = useState("");
+  const stopAutoRequestedRef = useRef(false);
   const queryClient = useQueryClient();
   const availableRows = config?.rows ?? [8, 9, 10, 11, 12, 13, 14, 15, 16];
   const availableRisks = config?.risks ?? (["LOW", "MEDIUM", "HIGH"] as Risk[]);
@@ -100,6 +131,10 @@ export function GameSidebar({
   }
 
   async function handleBetClick() {
+    if (selectedMode === "Auto") {
+      return;
+    }
+
     const amount = formatAmount(betAmount, minBetAmount, maxBetAmount);
 
     if (!amount) {
@@ -118,11 +153,103 @@ export function GameSidebar({
         risk,
       });
     } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Unable to place bet",
-      );
+      setError(error instanceof Error ? error.message : "Unable to place bet");
     }
   }
+
+  async function startAutoPlay() {
+    const amount = formatAmount(betAmount, minBetAmount, maxBetAmount);
+    const totalBets = parsePositiveNumber(autoBetCount);
+    const stopOnProfitAmount = parseNonNegativeNumber(stopOnProfit);
+    const stopOnLossAmount = parseNonNegativeNumber(stopOnLoss);
+
+    if (!amount) {
+      setError(
+        `Enter a bet amount between ${minBetAmount.toFixed(2)} and ${maxBetAmount.toFixed(2)}`,
+      );
+      return;
+    }
+
+    if (!totalBets || !Number.isInteger(totalBets)) {
+      setError("Enter a valid number of bets");
+      return;
+    }
+
+    if (stopOnProfitAmount === null || stopOnLossAmount === null) {
+      setError("Stop on profit and stop on loss must be 0 or more");
+      return;
+    }
+
+    setError("");
+    setIsAutoPlaying(true);
+    setAutoProgress({ current: 1, total: totalBets });
+    stopAutoRequestedRef.current = false;
+
+    const stopOnProfitUnits = Number(
+      getMinimalUnitsFromCredits(stopOnProfitAmount.toString()),
+    );
+    const stopOnLossUnits = Number(
+      getMinimalUnitsFromCredits(stopOnLossAmount.toString()),
+    );
+    let sessionProfit = 0;
+
+    try {
+      for (let betIndex = 1; betIndex <= totalBets; betIndex += 1) {
+        if (stopAutoRequestedRef.current) {
+          break;
+        }
+
+        setAutoProgress({ current: betIndex, total: totalBets });
+
+        const bet = await placeBetMutation.mutateAsync({
+          amount,
+          rows,
+          risk,
+        });
+
+        sessionProfit += Number(bet.payout) - Number(bet.amount);
+
+        const reachedProfit =
+          stopOnProfitUnits > 0 && sessionProfit >= stopOnProfitUnits;
+        const reachedLoss =
+          stopOnLossUnits > 0 && sessionProfit <= -stopOnLossUnits;
+
+        if (reachedProfit || reachedLoss) {
+          break;
+        }
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Unable to auto play");
+    } finally {
+      setIsAutoPlaying(false);
+      setAutoProgress({ current: 0, total: 0 });
+      stopAutoRequestedRef.current = false;
+    }
+  }
+
+  function handleStopAutoPlay() {
+    stopAutoRequestedRef.current = true;
+  }
+
+  function handleMainButtonClick() {
+    if (isAutoPlaying) {
+      handleStopAutoPlay();
+      return;
+    }
+
+    if (selectedMode === "Auto") {
+      void startAutoPlay();
+      return;
+    }
+
+    void handleBetClick();
+  }
+
+  const buttonClassName = isAutoPlaying
+    ? "mt-4 h-11 cursor-pointer rounded-lg bg-[#E7000B] text-[18px] text-[#F4F7FB] font-bold transition-[box-shadow,opacity] hover:opacity-90"
+    : "mt-4 h-11 cursor-pointer rounded-lg bg-linear-to-r from-[#00C950] to-[#009966] text-[18px] text-[#F4F7FB] font-bold transition-[box-shadow,opacity] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60";
+  const isManualPlaying =
+    selectedMode === "Manual" && placeBetMutation.isPending;
 
   return (
     <aside className="flex w-full shrink-0 flex-col border-b border-[#252D3E] bg-[#1A1F2ECC]/80 p-4 md:w-69.5 md:border-r md:border-b-0">
@@ -229,13 +356,69 @@ export function GameSidebar({
         <span>16</span>
       </div>
 
+      {selectedMode === "Auto" ? (
+        <div className="mt-4 border-t border-[#2A2F3E] pt-4">
+          <label className="block text-sm font-medium text-[#D1D5DC]">
+            Number of Bets
+            <input
+              className="mt-2 h-9 w-full rounded-lg border border-[#2A2F3E] bg-[#2626264D]/30 px-3 text-sm text-[#E8EDF6] outline-none focus:border-[#3A465E]"
+              disabled={isAutoPlaying}
+              min="1"
+              onChange={(event) => setAutoBetCount(event.target.value)}
+              onKeyDown={handleBetAmountKeyDown}
+              step="1"
+              type="number"
+              value={autoBetCount}
+            />
+          </label>
+
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <label className="block text-sm font-medium text-[#D1D5DC]">
+              Stop on Profit
+              <input
+                className="mt-2 h-9 w-full rounded-lg border border-[#2A2F3E] bg-[#2626264D]/30 px-3 text-sm text-[#E8EDF6] outline-none focus:border-[#3A465E]"
+                disabled={isAutoPlaying}
+                min="0"
+                onChange={(event) => setStopOnProfit(event.target.value)}
+                onKeyDown={handleBetAmountKeyDown}
+                step="0.01"
+                type="number"
+                value={stopOnProfit}
+              />
+            </label>
+
+            <label className="block text-sm font-medium text-[#D1D5DC]">
+              Stop on Loss
+              <input
+                className="mt-2 h-9 w-full rounded-lg border border-[#2A2F3E] bg-[#2626264D]/30 px-3 text-sm text-[#E8EDF6] outline-none focus:border-[#3A465E]"
+                disabled={isAutoPlaying}
+                min="0"
+                onChange={(event) => setStopOnLoss(event.target.value)}
+                onKeyDown={handleBetAmountKeyDown}
+                step="0.01"
+                type="number"
+                value={stopOnLoss}
+              />
+            </label>
+          </div>
+        </div>
+      ) : null}
+
       <button
-        className="mt-4 h-11 cursor-pointer rounded-lg bg-linear-to-r from-[#00C950] to-[#009966] text-[18px] text-[#F4F7FB] font-bold transition-[box-shadow,opacity] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-        disabled={placeBetMutation.isPending}
-        onClick={handleBetClick}
+        className={buttonClassName}
+        disabled={isManualPlaying}
+        onClick={handleMainButtonClick}
         type="button"
       >
-        {placeBetMutation.isPending ? "Placing..." : "Bet"}
+        {isAutoPlaying
+          ? `STOP (${autoProgress.current}/${autoProgress.total})`
+          : selectedMode === "Auto"
+            ? "Start Auto"
+            : isManualPlaying
+              ? (
+                  <LoadingButtonContent>Playing...</LoadingButtonContent>
+                )
+              : "Bet"}
       </button>
 
       {error ? (

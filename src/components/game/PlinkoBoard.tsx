@@ -1,4 +1,5 @@
 import { LogoutButton } from "@/components/LogoutButton";
+import type { Bet } from "@/lib/bets-api";
 import type { GameConfig } from "@/lib/game-api";
 import { HistoryButton } from "./HistoryButton";
 import { UserBalance } from "../UserBalance";
@@ -6,11 +7,16 @@ import type { Risk } from "./types";
 
 type PlinkoBoardProps = {
   config?: GameConfig;
+  lastBet: Bet | null;
   risk: Risk;
   rows: number;
 };
 
-function getMultiplierTone(index: number, length: number) {
+function getMultiplierTone(index: number, length: number, isActive: boolean) {
+  if (isActive) {
+    return "scale-110 border-[#F4F7FB] bg-[#00C950] text-[#07130B] shadow-[0_0_18px_rgba(0,201,80,0.75)]";
+  }
+
   const center = (length - 1) / 2;
   const distanceFromCenter = Math.abs(index - center);
 
@@ -25,8 +31,15 @@ function getMultiplierTone(index: number, length: number) {
   return "border-[#D7A61E] bg-[#372B0D] text-[#F7C948]";
 }
 
-export function PlinkoBoard({ config, risk, rows }: PlinkoBoardProps) {
+export function PlinkoBoard({
+  config,
+  lastBet,
+  risk,
+  rows,
+}: PlinkoBoardProps) {
   const multiplierSlots = config?.payoutTables[risk]?.[rows] ?? [];
+  const activeBucketIndex =
+    lastBet?.rows === rows && lastBet.risk === risk ? lastBet.bucketIndex : null;
 
   return (
     <div className="relative flex min-h-140 flex-1 flex-col overflow-hidden bg-[#101725]">
@@ -58,9 +71,11 @@ export function PlinkoBoard({ config, risk, rows }: PlinkoBoardProps) {
 
           <div className="flex max-w-full flex-wrap justify-center gap-1.5">
             {multiplierSlots.map((slot, index) => {
+              const isActive = activeBucketIndex === index;
+
               return (
                 <div
-                  className={`flex h-8 min-w-12 items-center justify-center rounded-lg border px-2 text-xs font-bold ${getMultiplierTone(index, multiplierSlots.length)}`}
+                  className={`flex h-8 min-w-12 items-center justify-center rounded-lg border px-2 text-xs font-bold transition-[transform,box-shadow,background-color,border-color,color] duration-200 ${getMultiplierTone(index, multiplierSlots.length, isActive)}`}
                   key={`${slot}-${index}`}
                 >
                   {slot}x
