@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { getCurrentUser, refreshAuth, type CurrentUser } from "@/lib/auth-api";
 import Image from "next/image";
 
-export function UserBalance() {
+type UserBalanceProps = {
+  balance?: string;
+};
+
+export function UserBalance({ balance: balanceOverride }: UserBalanceProps) {
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [error, setError] = useState("");
 
@@ -37,8 +41,9 @@ export function UserBalance() {
     };
   }, []);
 
-  const balance = user
-    ? Number(user.balance).toLocaleString("en-US", {
+  const balanceValue = balanceOverride ?? user?.balance;
+  const balance = balanceValue
+    ? Number(balanceValue).toLocaleString("en-US", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       })

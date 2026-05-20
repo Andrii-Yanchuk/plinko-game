@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { type KeyboardEvent, useState } from "react";
+import { placeBet, type Bet } from "@/lib/bets-api";
 import {
   betControls,
   maxRows,
@@ -17,11 +18,28 @@ import {
 } from "./helpers";
 import type { BetControl, GameMode, Risk } from "./types";
 
-export function GameSidebar() {
+type GameSidebarProps = {
+  lastBet: Bet | null;
+  onBetPlaced: (bet: Bet) => void;
+};
+
+function formatAmount(value: string) {
+  const amount = Number(value);
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return null;
+  }
+
+  return Math.round(amount * 1_000_000).toString();
+}
+
+export function GameSidebar({ lastBet, onBetPlaced }: GameSidebarProps) {
   const [selectedMode, setSelectedMode] = useState<GameMode>("Manual");
   const [selectedRisk, setSelectedRisk] = useState<Risk>("LOW");
   const [betAmount, setBetAmount] = useState("1.00");
-  const [rows, setRows] = useState(minRows);
+  const [rows, setRows] = useState(maxRows);
+  const [isPlacingBet, setIsPlacingBet] = useState(false);
+  const [error, setError] = useState("");
   const rowsProgress = getRowsProgress(rows);
 
   function handleBetAmountKeyDown(event: KeyboardEvent<HTMLInputElement>) {
@@ -38,6 +56,35 @@ export function GameSidebar() {
     }
 
     setBetAmount(nextBetAmount);
+  }
+
+  async function handleBetClick() {
+    const amount = formatAmount(betAmount);
+
+    if (!amount) {
+      setError("Enter a valid bet amount");
+      return;
+    }
+
+    setIsPlacingBet(true);
+    setError("");
+
+    try {
+      const bet = await placeBet({
+        amount,
+        rows,
+        risk: selectedRisk,
+      });
+
+      setBetAmount((Number(amount) / 1_000_000).toFixed(2));
+      onBetPlaced(bet);
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Unable to place bet",
+      );
+    } finally {
+      setIsPlacingBet(false);
+    }
   }
 
   return (
@@ -146,11 +193,48 @@ export function GameSidebar() {
       </div>
 
       <button
-        className="mt-4 h-11 cursor-pointer rounded-lg bg-linear-to-r from-[#00C950] to-[#009966] text-[18px] text-[#F4F7FB] font-bold transition-[box-shadow,opacity] hover:opacity-90"
+        className="mt-4 h-11 cursor-pointer rounded-lg bg-linear-to-r from-[#00C950] to-[#009966] text-[18px] text-[#F4F7FB] font-bold transition-[box-shadow,opacity] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+        disabled={isPlacingBet}
+        onClick={handleBetClick}
         type="button"
       >
-        Bet
+        {isPlacingBet ? "Placing..." : "Bet"}
       </button>
+
+      {error ? (
+        <p className="mt-3 rounded-lg border border-[#FB2C36]/50 bg-[#FB2C36]/10 px-3 py-2 text-xs font-medium text-[#FDA4AF]">
+          {error}
+        </p>
+      ) : null}
+
+      {lastBet ? (
+        <div className="mt-3 grid gap-2 rounded-lg border border-[#2A2F3E] bg-[#111827] p-3 text-xs text-[#D0D6E2]">
+          <div className="flex items-center justify-between">
+            <span className="text-[#8D96A8]">Multiplier</span>
+            <span className="font-bold text-[#FACC15]">
+              {lastBet.multiplier}x
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-[#8D96A8]">Payout</span>
+            <span className="font-bold text-[#00E783]">
+              {Number(lastBet.payout).toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-[#8D96A8]">Balance</span>
+            <span className="font-bold text-[#E8EDF6]">
+              {Number(lastBet.balanceAfter).toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </span>
+          </div>
+        </div>
+      ) : null}
 
       <div className="mt-auto -mx-4 -mb-4 flex h-17.5 items-center justify-between border-t border-[#2A2F3E] px-4">
         <button

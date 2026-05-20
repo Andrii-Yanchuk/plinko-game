@@ -3,13 +3,17 @@ import { multiplierSlots } from "./constants";
 import { HistoryButton } from "./HistoryButton";
 import { UserBalance } from "../UserBalance";
 
-export function PlinkoBoard() {
+type PlinkoBoardProps = {
+  balance?: string;
+};
+
+export function PlinkoBoard({ balance }: PlinkoBoardProps) {
   return (
     <div className="relative flex min-h-140 flex-1 flex-col overflow-hidden bg-[#101725]">
       <header className="flex h-14 items-center justify-between border-b border-[#222A3B]/80 px-5">
         <div className="flex items-center gap-5">
           <h1 className="text-2xl font-bold text-white">Plinko</h1>
-          <UserBalance />
+          <UserBalance balance={balance} />
         </div>
         <div className="flex items-center gap-3">
           <HistoryButton />
