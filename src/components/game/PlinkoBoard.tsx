@@ -1,45 +1,62 @@
+import { useCallback, useMemo, useState } from "react";
 import { LogoutButton } from "@/components/LogoutButton";
 import type { Bet } from "@/lib/bets-api";
 import type { GameConfig } from "@/lib/game-api";
 import { HistoryButton } from "./HistoryButton";
+import { PlinkoCanvas } from "./PlinkoCanvas";
 import { UserBalance } from "../UserBalance";
 import type { Risk } from "./types";
+import { getBallPath, getBoardHeight, getBucketLayout } from "./utils/animation";
+import { getBetAnimationKey, getBoardRows } from "./utils/board";
+import { getMultiplierTone } from "./utils/multiplier";
 
 type PlinkoBoardProps = {
   config?: GameConfig;
   lastBet: Bet | null;
+  onBetAnimationComplete: (bet: Bet) => void;
   risk: Risk;
   rows: number;
 };
 
-function getMultiplierTone(index: number, length: number, isActive: boolean) {
-  if (isActive) {
-    return "scale-110 border-[#F4F7FB] bg-[#00C950] text-[#07130B] shadow-[0_0_18px_rgba(0,201,80,0.75)]";
-  }
-
-  const center = (length - 1) / 2;
-  const distanceFromCenter = Math.abs(index - center);
-
-  if (distanceFromCenter <= 1) {
-    return "border-[#00C950] bg-[#06351E] text-[#00E783]";
-  }
-
-  if (index === 0 || index === length - 1) {
-    return "border-[#F59E0B] bg-[#3B220A] text-[#F6A11A]";
-  }
-
-  return "border-[#D7A61E] bg-[#372B0D] text-[#F7C948]";
-}
-
 export function PlinkoBoard({
   config,
   lastBet,
+  onBetAnimationComplete,
   risk,
   rows,
 }: PlinkoBoardProps) {
+  const [completedAnimationKey, setCompletedAnimationKey] = useState("");
   const multiplierSlots = config?.payoutTables[risk]?.[rows] ?? [];
+  const boardRows = getBoardRows(config, rows);
   const activeBucketIndex =
     lastBet?.rows === rows && lastBet.risk === risk ? lastBet.bucketIndex : null;
+  const animationKey = getBetAnimationKey(
+    lastBet,
+    rows,
+    risk,
+    activeBucketIndex,
+  );
+  const ballPath = useMemo(
+    () => getBallPath(lastBet, rows, risk, boardRows),
+    [boardRows, lastBet, risk, rows],
+  );
+  const hasFinishedBallAnimation =
+    ballPath.length === 0 || completedAnimationKey === animationKey;
+  const shouldAnimateBall =
+    Boolean(animationKey) && completedAnimationKey !== animationKey;
+  const visibleBucketIndex = hasFinishedBallAnimation
+    ? activeBucketIndex
+    : null;
+  const { bucketGap, bucketWidth } = getBucketLayout(rows);
+  const boardHeight = getBoardHeight(boardRows);
+
+  const handleAnimationComplete = useCallback(() => {
+    setCompletedAnimationKey(animationKey);
+
+    if (lastBet && animationKey) {
+      onBetAnimationComplete(lastBet);
+    }
+  }, [animationKey, lastBet, onBetAnimationComplete]);
 
   return (
     <div className="relative flex min-h-140 flex-1 flex-col overflow-hidden bg-[#101725]">
@@ -55,28 +72,31 @@ export function PlinkoBoard({
       </header>
 
       <div className="flex flex-1 flex-col items-center justify-start px-4 pt-24">
-        <div className="flex flex-col items-center gap-8">
-          <div className="flex flex-col items-center gap-11">
-            {Array.from({ length: rows }, (_, rowIndex) => (
-              <div className="flex justify-center gap-8" key={rowIndex}>
-                {Array.from({ length: rowIndex + 2 }, (_, pegIndex) => (
-                  <span
-                    className="h-2 w-2 rounded-full bg-[#96A3B5] shadow-[0_0_10px_rgba(150,163,181,0.35)]"
-                    key={`${rowIndex}-${pegIndex}`}
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
+        <div
+          className="relative w-full max-w-160"
+          style={{ height: boardHeight }}
+        >
+          <PlinkoCanvas
+            boardRows={boardRows}
+            isAnimationEnabled={shouldAnimateBall}
+            lastBet={lastBet}
+            onAnimationComplete={handleAnimationComplete}
+            risk={risk}
+            rows={rows}
+          />
 
-          <div className="flex max-w-full flex-wrap justify-center gap-1.5">
+          <div
+            className="absolute bottom-0 left-1/2 flex max-w-full -translate-x-1/2 justify-center"
+            style={{ gap: bucketGap }}
+          >
             {multiplierSlots.map((slot, index) => {
-              const isActive = activeBucketIndex === index;
+              const isActive = visibleBucketIndex === index;
 
               return (
                 <div
-                  className={`flex h-8 min-w-12 items-center justify-center rounded-lg border px-2 text-xs font-bold transition-[transform,box-shadow,background-color,border-color,color] duration-200 ${getMultiplierTone(index, multiplierSlots.length, isActive)}`}
+                  className={`flex h-8 items-center justify-center rounded-lg border px-1 text-[11px] font-bold transition-[transform,box-shadow,background-color,border-color,color] duration-200 ${getMultiplierTone(index, multiplierSlots.length, isActive)}`}
                   key={`${slot}-${index}`}
+                  style={{ width: bucketWidth }}
                 >
                   {slot}x
                 </div>

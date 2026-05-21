@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { CurrentUser } from "@/lib/auth-api";
 import type { Bet } from "@/lib/bets-api";
 import { getGameConfig } from "@/lib/game-api";
 import { queryKeys } from "@/lib/query-keys";
@@ -11,6 +12,7 @@ import type { Risk } from "./types";
 import { useFullscreen } from "./useFullscreen";
 
 export function GameScreen() {
+  const queryClient = useQueryClient();
   const {
     elementRef: gameScreenRef,
     isFullscreen,
@@ -23,6 +25,14 @@ export function GameScreen() {
     queryFn: getGameConfig,
     queryKey: queryKeys.gameConfig,
   });
+
+  const handleBetAnimationComplete = useCallback((bet: Bet) => {
+    queryClient.setQueryData<CurrentUser>(
+      queryKeys.currentUser,
+      (currentUser) =>
+        currentUser ? { ...currentUser, balance: bet.balanceAfter } : currentUser,
+    );
+  }, [queryClient]);
 
   return (
     <section
@@ -43,6 +53,7 @@ export function GameScreen() {
       <PlinkoBoard
         config={gameConfig}
         lastBet={lastBet}
+        onBetAnimationComplete={handleBetAnimationComplete}
         risk={risk}
         rows={rows}
       />
