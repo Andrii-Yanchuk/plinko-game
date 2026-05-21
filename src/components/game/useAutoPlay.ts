@@ -39,6 +39,7 @@ export function useAutoPlay({ placeBet }: UseAutoPlayParams) {
     total: 0,
   });
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isStopping, setIsStopping] = useState(false);
   const stopRequestedRef = useRef(false);
 
   async function start(params: AutoPlayParams) {
@@ -55,6 +56,7 @@ export function useAutoPlay({ placeBet }: UseAutoPlayParams) {
     }
 
     setIsPlaying(true);
+    setIsStopping(false);
     setProgress({ current: 1, total: totalBets });
     stopRequestedRef.current = false;
 
@@ -93,17 +95,20 @@ export function useAutoPlay({ placeBet }: UseAutoPlayParams) {
       }
     } finally {
       setIsPlaying(false);
+      setIsStopping(false);
       setProgress({ current: 0, total: 0 });
       stopRequestedRef.current = false;
     }
   }
 
   function stop() {
+    setIsStopping(true);
     stopRequestedRef.current = true;
   }
 
   return {
     isPlaying,
+    isStopping,
     progress,
     start,
     stop,

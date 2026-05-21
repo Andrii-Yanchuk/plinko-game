@@ -3,7 +3,7 @@ import { placeBet, type Bet } from "@/lib/bets-api";
 
 type UsePlaceBetParams = {
   onBetAmountSettled: (amount: string) => void;
-  onBetPlaced: (bet: Bet) => void;
+  onBetPlaced: (bet: Bet) => Promise<void> | void;
 };
 
 export function usePlaceBet({
@@ -12,9 +12,9 @@ export function usePlaceBet({
 }: UsePlaceBetParams) {
   const mutation = useMutation({
     mutationFn: placeBet,
-    onSuccess: (bet) => {
+    onSuccess: async (bet) => {
       onBetAmountSettled((Number(bet.amount) / 1_000_000).toFixed(2));
-      onBetPlaced(bet);
+      await onBetPlaced(bet);
     },
   });
 

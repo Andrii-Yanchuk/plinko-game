@@ -55,12 +55,22 @@ export function PlinkoCanvas({
     let animationFrameId = 0;
     let startedAt: number | null = null;
 
-    if (!isAnimationEnabled || ballPath.length === 0) {
+    if (!isAnimationEnabled) {
       drawPlinkoScene(renderingContext, {
         ...sceneSize,
         boardRows,
         rows,
       });
+      return;
+    }
+
+    if (ballPath.length === 0) {
+      drawPlinkoScene(renderingContext, {
+        ...sceneSize,
+        boardRows,
+        rows,
+      });
+      onAnimationComplete();
       return;
     }
 

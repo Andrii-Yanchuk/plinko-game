@@ -22,7 +22,7 @@ type GameSidebarProps = {
   config?: GameConfig;
   isRoundPlaying: boolean;
   lastBet: Bet | null;
-  onBetPlaced: (bet: Bet) => void;
+  onBetPlaced: (bet: Bet) => Promise<void> | void;
   onFullscreenClick: () => void;
   onRiskChange: (risk: Risk) => void;
   onRowsChange: (rows: number) => void;
@@ -139,7 +139,9 @@ export function GameSidebar({
 
   function handleMainButtonClick() {
     if (autoPlay.isPlaying) {
-      autoPlay.stop();
+      if (!autoPlay.isStopping) {
+        autoPlay.stop();
+      }
       return;
     }
 
@@ -204,6 +206,7 @@ export function GameSidebar({
       <BetActionButton
         autoProgress={autoPlay.progress}
         isAutoPlaying={autoPlay.isPlaying}
+        isAutoStopping={autoPlay.isStopping}
         isManualPlaying={isManualPlaying}
         mode={selectedMode}
         onClick={handleMainButtonClick}

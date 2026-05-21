@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CurrentUser } from "@/lib/auth-api";
 import type { Bet } from "@/lib/bets-api";
@@ -9,10 +9,17 @@ import { queryKeys } from "@/lib/query-keys";
 import { GameSidebar } from "./GameSidebar";
 import { PlinkoBoard } from "./PlinkoBoard";
 import type { Risk } from "./types";
+import { delay } from "./utils/delay";
 import { useFullscreen } from "./useFullscreen";
+
+const roundResultPauseMs = 1000;
 
 export function GameScreen() {
   const queryClient = useQueryClient();
+  const roundCompletionRef = useRef<{
+    betId: string;
+    resolve: () => void;
+  } | null>(null);
   const {
     elementRef: gameScreenRef,
     isFullscreen,
@@ -33,12 +40,30 @@ export function GameScreen() {
       (currentUser) =>
         currentUser ? { ...currentUser, balance: bet.balanceAfter } : currentUser,
     );
-    setIsRoundPlaying(false);
+
+    const pendingRound = roundCompletionRef.current;
+
+    if (pendingRound?.betId !== bet.betId) {
+      return;
+    }
+
+    void delay(roundResultPauseMs).then(() => {
+      roundCompletionRef.current = null;
+      setIsRoundPlaying(false);
+      pendingRound.resolve();
+    });
   }, [queryClient]);
 
   const handleBetPlaced = useCallback((bet: Bet) => {
     setIsRoundPlaying(true);
     setLastBet(bet);
+
+    return new Promise<void>((resolve) => {
+      roundCompletionRef.current = {
+        betId: bet.betId,
+        resolve,
+      };
+    });
   }, []);
 
   return (

@@ -6,6 +6,7 @@ type BetActionButtonProps = {
     total: number;
   };
   isAutoPlaying: boolean;
+  isAutoStopping: boolean;
   isManualPlaying: boolean;
   mode: GameMode;
   onClick: () => void;
@@ -23,6 +24,7 @@ function LoadingButtonContent({ children }: { children: string }) {
 export function BetActionButton({
   autoProgress,
   isAutoPlaying,
+  isAutoStopping,
   isManualPlaying,
   mode,
   onClick,
@@ -34,12 +36,17 @@ export function BetActionButton({
   return (
     <button
       className={className}
-      disabled={isManualPlaying}
+      disabled={isManualPlaying || isAutoStopping}
       onClick={onClick}
       type="button"
     >
-      {isAutoPlaying
-        ? `STOP (${autoProgress.current}/${autoProgress.total})`
+      {isAutoPlaying ? (
+        isAutoStopping ? (
+          <LoadingButtonContent>Stopping...</LoadingButtonContent>
+        ) : (
+          `STOP (${autoProgress.current}/${autoProgress.total})`
+        )
+      )
         : mode === "Auto"
           ? "Start Auto"
           : isManualPlaying
