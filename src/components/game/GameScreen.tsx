@@ -17,7 +17,7 @@ export function GameScreen() {
     toggleFullscreen,
   } = useFullscreen<HTMLElement>();
   const [lastBet, setLastBet] = useState<Bet | null>(null);
-  const [rows, setRows] = useState(16);
+  const [rows, setRows] = useState(8);
   const [risk, setRisk] = useState<Risk>("LOW");
   const { data: gameConfig } = useQuery({
     queryFn: getGameConfig,
