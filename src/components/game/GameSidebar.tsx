@@ -22,16 +22,20 @@ type GameSidebarProps = {
   config?: GameConfig;
   lastBet: Bet | null;
   onBetPlaced: (bet: Bet) => void;
+  onFullscreenClick: () => void;
   onRiskChange: (risk: Risk) => void;
   onRowsChange: (rows: number) => void;
+  isFullscreen: boolean;
   risk: Risk;
   rows: number;
 };
 
 export function GameSidebar({
   config,
+  isFullscreen,
   lastBet,
   onBetPlaced,
+  onFullscreenClick,
   onRiskChange,
   onRowsChange,
   risk,
@@ -201,7 +205,10 @@ export function GameSidebar({
       ) : null}
 
       <LastBetSummary lastBet={lastBet} />
-      <SidebarFooter />
+      <SidebarFooter
+        isFullscreen={isFullscreen}
+        onFullscreenClick={onFullscreenClick}
+      />
     </aside>
   );
 }

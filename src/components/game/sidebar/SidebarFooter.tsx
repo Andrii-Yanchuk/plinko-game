@@ -1,11 +1,21 @@
 import Image from "next/image";
 
-export function SidebarFooter() {
+type SidebarFooterProps = {
+  isFullscreen: boolean;
+  onFullscreenClick: () => void;
+};
+
+export function SidebarFooter({
+  isFullscreen,
+  onFullscreenClick,
+}: SidebarFooterProps) {
   return (
     <div className="mt-auto -mx-4 -mb-4 flex h-17.5 items-center justify-between border-t border-[#2A2F3E] px-4">
       <button
         aria-label="Fullscreen"
+        aria-pressed={isFullscreen}
         className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition-colors hover:bg-[#2626264D]"
+        onClick={onFullscreenClick}
         type="button"
       >
         <Image src="./all-display-icon.svg" alt="" width={20} height={20} />
