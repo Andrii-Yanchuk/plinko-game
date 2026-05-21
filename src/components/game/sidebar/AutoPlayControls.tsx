@@ -2,6 +2,7 @@ import type { KeyboardEvent } from "react";
 
 type AutoPlayControlsProps = {
   autoBetCount: string;
+  disabled?: boolean;
   isAutoPlaying: boolean;
   onAutoBetCountChange: (value: string) => void;
   onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
@@ -13,6 +14,7 @@ type AutoPlayControlsProps = {
 
 export function AutoPlayControls({
   autoBetCount,
+  disabled = false,
   isAutoPlaying,
   onAutoBetCountChange,
   onKeyDown,
@@ -27,7 +29,7 @@ export function AutoPlayControls({
         Number of Bets
         <input
           className="mt-2 h-9 w-full rounded-lg border border-[#2A2F3E] bg-[#2626264D]/30 px-3 text-sm text-[#E8EDF6] outline-none focus:border-[#3A465E]"
-          disabled={isAutoPlaying}
+          disabled={disabled || isAutoPlaying}
           min="1"
           onChange={(event) => onAutoBetCountChange(event.target.value)}
           onKeyDown={onKeyDown}
@@ -42,7 +44,7 @@ export function AutoPlayControls({
           Stop on Profit
           <input
             className="mt-2 h-9 w-full rounded-lg border border-[#2A2F3E] bg-[#2626264D]/30 px-3 text-sm text-[#E8EDF6] outline-none focus:border-[#3A465E]"
-            disabled={isAutoPlaying}
+            disabled={disabled || isAutoPlaying}
             min="0"
             onChange={(event) => onStopOnProfitChange(event.target.value)}
             onKeyDown={onKeyDown}
@@ -56,7 +58,7 @@ export function AutoPlayControls({
           Stop on Loss
           <input
             className="mt-2 h-9 w-full rounded-lg border border-[#2A2F3E] bg-[#2626264D]/30 px-3 text-sm text-[#E8EDF6] outline-none focus:border-[#3A465E]"
-            disabled={isAutoPlaying}
+            disabled={disabled || isAutoPlaying}
             min="0"
             onChange={(event) => onStopOnLossChange(event.target.value)}
             onKeyDown={onKeyDown}

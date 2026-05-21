@@ -2,11 +2,16 @@ import { modes } from "../constants";
 import type { GameMode } from "../types";
 
 type ModeToggleProps = {
+  disabled?: boolean;
   mode: GameMode;
   onModeChange: (mode: GameMode) => void;
 };
 
-export function ModeToggle({ mode, onModeChange }: ModeToggleProps) {
+export function ModeToggle({
+  disabled = false,
+  mode,
+  onModeChange,
+}: ModeToggleProps) {
   return (
     <div className="relative grid h-9 grid-cols-2 rounded-[14px] bg-[#0F1419] p-1 text-xs">
       <span
@@ -19,11 +24,12 @@ export function ModeToggle({ mode, onModeChange }: ModeToggleProps) {
 
         return (
           <button
-            className={`relative z-10 cursor-pointer rounded-[14px] font-medium transition-colors duration-200 ${
+            className={`relative z-10 cursor-pointer rounded-[14px] font-medium transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
               isSelected
                 ? "text-[#FAFAFA]"
                 : "text-[#A1A1A1] hover:text-[#D4D4D4]"
             }`}
+            disabled={disabled}
             key={label}
             onClick={() => onModeChange(label)}
             type="button"

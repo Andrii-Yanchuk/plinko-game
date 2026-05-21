@@ -19,6 +19,7 @@ export function GameScreen() {
     toggleFullscreen,
   } = useFullscreen<HTMLElement>();
   const [lastBet, setLastBet] = useState<Bet | null>(null);
+  const [isRoundPlaying, setIsRoundPlaying] = useState(false);
   const [rows, setRows] = useState(8);
   const [risk, setRisk] = useState<Risk>("LOW");
   const { data: gameConfig } = useQuery({
@@ -32,7 +33,13 @@ export function GameScreen() {
       (currentUser) =>
         currentUser ? { ...currentUser, balance: bet.balanceAfter } : currentUser,
     );
+    setIsRoundPlaying(false);
   }, [queryClient]);
+
+  const handleBetPlaced = useCallback((bet: Bet) => {
+    setIsRoundPlaying(true);
+    setLastBet(bet);
+  }, []);
 
   return (
     <section
@@ -42,8 +49,9 @@ export function GameScreen() {
       <GameSidebar
         config={gameConfig}
         isFullscreen={isFullscreen}
+        isRoundPlaying={isRoundPlaying}
         lastBet={lastBet}
-        onBetPlaced={setLastBet}
+        onBetPlaced={handleBetPlaced}
         onFullscreenClick={toggleFullscreen}
         onRiskChange={setRisk}
         onRowsChange={setRows}

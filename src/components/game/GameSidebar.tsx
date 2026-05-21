@@ -20,6 +20,7 @@ import { usePlaceBet } from "./usePlaceBet";
 
 type GameSidebarProps = {
   config?: GameConfig;
+  isRoundPlaying: boolean;
   lastBet: Bet | null;
   onBetPlaced: (bet: Bet) => void;
   onFullscreenClick: () => void;
@@ -33,6 +34,7 @@ type GameSidebarProps = {
 export function GameSidebar({
   config,
   isFullscreen,
+  isRoundPlaying,
   lastBet,
   onBetPlaced,
   onFullscreenClick,
@@ -150,14 +152,20 @@ export function GameSidebar({
   }
 
   const isManualPlaying =
-    selectedMode === "Manual" && placeBetMutation.isPending;
+    selectedMode === "Manual" && (placeBetMutation.isPending || isRoundPlaying);
+  const isSidebarDisabled = placeBetMutation.isPending || isRoundPlaying;
 
   return (
     <aside className="flex w-full shrink-0 flex-col border-b border-[#252D3E] bg-[#1A1F2ECC]/80 p-4 md:w-69.5 md:border-r md:border-b-0">
-      <ModeToggle mode={selectedMode} onModeChange={setSelectedMode} />
+      <ModeToggle
+        disabled={isSidebarDisabled}
+        mode={selectedMode}
+        onModeChange={setSelectedMode}
+      />
 
       <BetAmountControl
         amount={betAmount}
+        disabled={isSidebarDisabled}
         onAmountChange={setBetAmount}
         onBetControlClick={handleBetControlClick}
         onKeyDown={handleBetAmountKeyDown}
@@ -165,12 +173,14 @@ export function GameSidebar({
 
       <RiskSelector
         availableRisks={availableRisks}
+        disabled={isSidebarDisabled}
         onRiskChange={onRiskChange}
         risk={risk}
       />
 
       <RowsSelector
         maxRows={maxRows}
+        disabled={isSidebarDisabled}
         minRows={minRows}
         onRowsChange={onRowsChange}
         rows={rows}
@@ -180,6 +190,7 @@ export function GameSidebar({
       {selectedMode === "Auto" ? (
         <AutoPlayControls
           autoBetCount={autoBetCount}
+          disabled={isSidebarDisabled}
           isAutoPlaying={autoPlay.isPlaying}
           onAutoBetCountChange={setAutoBetCount}
           onKeyDown={handleBetAmountKeyDown}

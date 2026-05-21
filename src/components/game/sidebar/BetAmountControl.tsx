@@ -5,6 +5,7 @@ import type { BetControl } from "../types";
 
 type BetAmountControlProps = {
   amount: string;
+  disabled?: boolean;
   onAmountChange: (amount: string) => void;
   onBetControlClick: (control: BetControl) => void;
   onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
@@ -12,6 +13,7 @@ type BetAmountControlProps = {
 
 export function BetAmountControl({
   amount,
+  disabled = false,
   onAmountChange,
   onBetControlClick,
   onKeyDown,
@@ -31,7 +33,8 @@ export function BetAmountControl({
           className="mr-2"
         />
         <input
-          className="w-full bg-transparent outline-none"
+          className="w-full bg-transparent outline-none disabled:cursor-not-allowed"
+          disabled={disabled}
           min="0"
           onChange={(event) => onAmountChange(event.target.value)}
           onKeyDown={onKeyDown}
@@ -44,7 +47,8 @@ export function BetAmountControl({
       <div className="mt-2 grid grid-cols-3 gap-2">
         {betControls.map((label) => (
           <button
-            className="h-8 cursor-pointer rounded-lg border border-[#262626] bg-[#2626264D]/30 text-xs font-medium text-[#D0D6E2] transition-colors hover:bg-[#222A3D]"
+            className="h-8 cursor-pointer rounded-lg border border-[#262626] bg-[#2626264D]/30 text-xs font-medium text-[#D0D6E2] transition-colors hover:bg-[#222A3D] disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={disabled}
             key={label}
             onClick={() => onBetControlClick(label)}
             type="button"
