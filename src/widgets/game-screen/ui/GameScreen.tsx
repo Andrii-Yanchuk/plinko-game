@@ -7,9 +7,9 @@ import { getGameConfig } from "@/entities/game/api/gameApi";
 import type { CurrentUser } from "@/entities/user/model/types";
 import { GameSidebar } from "@/widgets/game-sidebar/ui/GameSidebar";
 import { PlinkoBoard } from "@/widgets/plinko-board/ui/PlinkoBoard";
-import { useFullscreen } from "@/components/game/useFullscreen";
 import { delay } from "@/shared/lib/delay";
 import { queryKeys } from "@/shared/lib/queryKeys";
+import { useFullscreen } from "@/shared/lib/useFullscreen";
 import { useGameScreenStore } from "@/widgets/game-screen/model/useGameScreenStore";
 
 const roundResultPauseMs = 1000;

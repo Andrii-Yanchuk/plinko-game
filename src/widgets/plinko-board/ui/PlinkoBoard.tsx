@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { LogoutButton } from "@/components/LogoutButton";
+import { LogoutButton } from "@/features/auth/logout/ui/LogoutButton";
 import type { Bet } from "@/entities/bet/model/types";
 import type { GameConfig, Risk } from "@/entities/game/model/types";
 import { getBallPath, getBoardHeight, getBucketLayout } from "@/widgets/plinko-board/lib/animation";
