@@ -16,7 +16,7 @@ import { RowsSelector } from "./sidebar/RowsSelector";
 import { SidebarFooter } from "./sidebar/SidebarFooter";
 import { useAutoPlay } from "./useAutoPlay";
 import { useGameSidebarConfig } from "./useGameSidebarConfig";
-import { usePlaceBet } from "./usePlaceBet";
+import { usePlaceBet } from "@/features/place-bet/model/usePlaceBet";
 
 type GameSidebarProps = {
   config?: GameConfig;
