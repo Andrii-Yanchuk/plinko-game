@@ -7,7 +7,7 @@ import { getBetAnimationKey, getBoardRows } from "@/widgets/plinko-board/lib/boa
 import { getMultiplierTone } from "@/widgets/plinko-board/lib/multiplier";
 import { HistoryButton } from "./HistoryButton";
 import { PlinkoCanvas } from "./PlinkoCanvas";
-import { UserBalance } from "@/components/UserBalance";
+import { UserBalance } from "@/entities/user/ui/UserBalance";
 
 type PlinkoBoardProps = {
   config?: GameConfig;
