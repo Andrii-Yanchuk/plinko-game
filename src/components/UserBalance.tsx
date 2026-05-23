@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentUser } from "@/entities/user/api/userApi";
-import { queryKeys } from "@/lib/query-keys";
+import { queryKeys } from "@/shared/lib/queryKeys";
 
 type UserBalanceProps = {
   balance?: string;

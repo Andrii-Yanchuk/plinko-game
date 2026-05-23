@@ -1,5 +1,5 @@
-import { API_BASE_URL } from "@/lib/auth-config";
-import { proxyAuthenticatedRequest } from "@/lib/authenticated-api";
+import { API_BASE_URL } from "@/shared/api/config";
+import { proxyAuthenticatedRequest } from "@/shared/api/authenticatedApi";
 
 export async function GET(request: Request) {
   const { search } = new URL(request.url);

@@ -7,7 +7,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import type { BetHistory } from "@/entities/bet/model/types";
 import type { Risk } from "@/entities/game/model/types";
 import { getBetHistory } from "@/entities/bet/api/betsApi";
-import { queryKeys } from "@/lib/query-keys";
+import { queryKeys } from "@/shared/lib/queryKeys";
 import { betHistoryPageSize } from "./constants";
 import { HistoryFilters } from "./HistoryFilters";
 import { HistoryItem } from "./HistoryItem";

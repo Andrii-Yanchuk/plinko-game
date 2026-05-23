@@ -5,7 +5,7 @@ import {
   REFRESH_TOKEN_COOKIE,
   accessTokenCookieOptions,
   refreshTokenCookieOptions,
-} from "@/lib/auth-config";
+} from "@/shared/api/config";
 
 export async function POST(request: Request) {
   const payload = await request.json();

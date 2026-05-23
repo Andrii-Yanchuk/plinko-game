@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   ACCESS_TOKEN_COOKIE,
   REFRESH_TOKEN_COOKIE,
-} from "@/lib/auth-config";
+} from "@/shared/api/config";
 
 export function proxy(request: NextRequest) {
   const hasAccessToken = request.cookies.has(ACCESS_TOKEN_COOKIE);
