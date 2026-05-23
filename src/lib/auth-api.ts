@@ -3,8 +3,6 @@ import type {
   AuthResponse,
 } from "@/entities/user/model/types";
 
-export { getCurrentUser } from "@/entities/user/api/userApi";
-
 async function requestAuth(path: string, payload: AuthPayload) {
   const response = await fetch(path, {
     method: "POST",
