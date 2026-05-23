@@ -4,7 +4,7 @@ import {
   getMinimalUnitsFromCredits,
 } from "@/entities/game/lib/amount";
 import { getRowsProgress } from "@/entities/game/lib/rows";
-import type { Risk } from "./types";
+import type { Risk } from "@/entities/game/model/types";
 
 const fallbackRows = [8, 9, 10, 11, 12, 13, 14, 15, 16];
 const fallbackRisks: Risk[] = ["LOW", "MEDIUM", "HIGH"];

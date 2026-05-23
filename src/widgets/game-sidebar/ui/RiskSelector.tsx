@@ -1,5 +1,5 @@
-import { riskStyles } from "../constants";
-import type { Risk } from "../types";
+import type { Risk } from "@/entities/game/model/types";
+import { riskStyles } from "@/widgets/game-sidebar/model/constants";
 
 type RiskSelectorProps = {
   availableRisks: Risk[];

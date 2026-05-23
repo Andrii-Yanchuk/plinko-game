@@ -1,4 +1,4 @@
-import type { GameMode } from "../types";
+import type { GameMode } from "@/entities/game/model/types";
 
 type BetActionButtonProps = {
   autoProgress: {

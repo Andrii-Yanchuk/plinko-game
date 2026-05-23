@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { KeyboardEvent } from "react";
-import { betControls } from "../constants";
-import type { BetControl } from "../types";
+import type { BetControl } from "@/entities/game/model/types";
+import { betControls } from "@/widgets/game-sidebar/model/constants";
 
 type BetAmountControlProps = {
   amount: string;

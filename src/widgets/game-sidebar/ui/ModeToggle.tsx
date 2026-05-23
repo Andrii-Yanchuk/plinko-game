@@ -1,5 +1,5 @@
-import { modes } from "../constants";
-import type { GameMode } from "../types";
+import type { GameMode } from "@/entities/game/model/types";
+import { modes } from "@/widgets/game-sidebar/model/constants";
 
 type ModeToggleProps = {
   disabled?: boolean;
