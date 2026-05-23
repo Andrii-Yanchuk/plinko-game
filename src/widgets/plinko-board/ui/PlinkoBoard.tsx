@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { LogoutButton } from "@/features/auth/logout/ui/LogoutButton";
 import type { Bet } from "@/entities/bet/model/types";
 import type { GameConfig, Risk } from "@/entities/game/model/types";
@@ -11,16 +11,20 @@ import { UserBalance } from "@/entities/user/ui/UserBalance";
 
 type PlinkoBoardProps = {
   config?: GameConfig;
+  isAnimationEnabled: boolean;
   lastBet: Bet | null;
   onBetAnimationComplete: (bet: Bet) => void;
+  onPegImpact: () => void;
   risk: Risk;
   rows: number;
 };
 
 export function PlinkoBoard({
   config,
+  isAnimationEnabled,
   lastBet,
   onBetAnimationComplete,
+  onPegImpact,
   risk,
   rows,
 }: PlinkoBoardProps) {
@@ -42,7 +46,9 @@ export function PlinkoBoard({
   const hasFinishedBallAnimation =
     ballPath.length === 0 || completedAnimationKey === animationKey;
   const shouldAnimateBall =
-    Boolean(animationKey) && completedAnimationKey !== animationKey;
+    isAnimationEnabled &&
+    Boolean(animationKey) &&
+    completedAnimationKey !== animationKey;
   const visibleBucketIndex = hasFinishedBallAnimation
     ? activeBucketIndex
     : null;
@@ -56,6 +62,23 @@ export function PlinkoBoard({
       onBetAnimationComplete(lastBet);
     }
   }, [animationKey, lastBet, onBetAnimationComplete]);
+
+  useEffect(() => {
+    if (isAnimationEnabled || !animationKey || completedAnimationKey === animationKey) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(handleAnimationComplete, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [
+    animationKey,
+    completedAnimationKey,
+    handleAnimationComplete,
+    isAnimationEnabled,
+  ]);
 
   return (
     <div className="relative flex min-h-140 flex-1 flex-col overflow-hidden bg-[#101725]">
@@ -80,6 +103,7 @@ export function PlinkoBoard({
             isAnimationEnabled={shouldAnimateBall}
             lastBet={lastBet}
             onAnimationComplete={handleAnimationComplete}
+            onPegImpact={onPegImpact}
             risk={risk}
             rows={rows}
           />

@@ -3,17 +3,23 @@ import { useCallback, useState } from "react";
 import { SettingsModal } from "./SettingsModal";
 
 type SidebarFooterProps = {
+  animationsEnabled: boolean;
   isFullscreen: boolean;
+  onAnimationsChange: (enabled: boolean) => void;
   onFullscreenClick: () => void;
+  onSoundChange: (enabled: boolean) => void;
+  soundEnabled: boolean;
 };
 
 export function SidebarFooter({
+  animationsEnabled,
   isFullscreen,
+  onAnimationsChange,
   onFullscreenClick,
+  onSoundChange,
+  soundEnabled,
 }: SidebarFooterProps) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [animationsEnabled, setAnimationsEnabled] = useState(true);
   const closeSettings = useCallback(() => setIsSettingsOpen(false), []);
 
   return (
@@ -42,9 +48,9 @@ export function SidebarFooter({
       {isSettingsOpen ? (
         <SettingsModal
           animationsEnabled={animationsEnabled}
-          onAnimationsChange={setAnimationsEnabled}
+          onAnimationsChange={onAnimationsChange}
           onClose={closeSettings}
-          onSoundChange={setSoundEnabled}
+          onSoundChange={onSoundChange}
           soundEnabled={soundEnabled}
         />
       ) : null}

@@ -1,12 +1,19 @@
 import { useEffect, useMemo, useRef } from "react";
 import type { Bet } from "@/entities/bet/model/types";
+import { getCompletedImpactIndex } from "@/features/game-sound/lib/soundEvents";
 import {
   getBallPath,
   getBoardHeight,
   getBoardWidth,
 } from "@/widgets/plinko-board/lib/animation";
-import { configureCanvas, drawPlinkoScene } from "@/widgets/plinko-board/lib/canvas/drawing";
-import { getBallFrame } from "@/widgets/plinko-board/lib/canvas/physics";
+import {
+  configureCanvas,
+  drawPlinkoScene,
+} from "@/widgets/plinko-board/lib/canvas/drawing";
+import {
+  getBallFrame,
+  stepDurationMs,
+} from "@/widgets/plinko-board/lib/canvas/physics";
 import type { Risk } from "@/entities/game/model/types";
 
 type PlinkoCanvasProps = {
@@ -14,6 +21,7 @@ type PlinkoCanvasProps = {
   isAnimationEnabled: boolean;
   lastBet: Bet | null;
   onAnimationComplete: () => void;
+  onPegImpact: () => void;
   risk: Risk;
   rows: number;
 };
@@ -23,16 +31,23 @@ export function PlinkoCanvas({
   isAnimationEnabled,
   lastBet,
   onAnimationComplete,
+  onPegImpact,
   risk,
   rows,
 }: PlinkoCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const lastImpactSoundIndexRef = useRef<number | null>(null);
+  const onPegImpactRef = useRef(onPegImpact);
   const boardHeight = getBoardHeight(boardRows);
   const boardWidth = getBoardWidth();
   const ballPath = useMemo(
     () => getBallPath(lastBet, rows, risk, boardRows),
     [boardRows, lastBet, risk, rows],
   );
+
+  useEffect(() => {
+    onPegImpactRef.current = onPegImpact;
+  }, [onPegImpact]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -54,6 +69,7 @@ export function PlinkoCanvas({
     const sceneSize = { height: boardHeight, width: boardWidth };
     let animationFrameId = 0;
     let startedAt: number | null = null;
+    lastImpactSoundIndexRef.current = null;
 
     if (!isAnimationEnabled) {
       drawPlinkoScene(renderingContext, {
@@ -77,7 +93,22 @@ export function PlinkoCanvas({
     function animate(timestamp: number) {
       startedAt ??= timestamp;
 
-      const frame = getBallFrame(ballPath, timestamp - startedAt);
+      const elapsedMs = timestamp - startedAt;
+      const frame = getBallFrame(ballPath, elapsedMs);
+      const impactSoundIndex = getCompletedImpactIndex(
+        ballPath.length,
+        elapsedMs,
+        stepDurationMs,
+      );
+
+      if (
+        impactSoundIndex !== null &&
+        impactSoundIndex !== lastImpactSoundIndexRef.current &&
+        impactSoundIndex < ballPath.length - 1
+      ) {
+        lastImpactSoundIndexRef.current = impactSoundIndex;
+        onPegImpactRef.current();
+      }
 
       drawPlinkoScene(renderingContext, {
         ...sceneSize,

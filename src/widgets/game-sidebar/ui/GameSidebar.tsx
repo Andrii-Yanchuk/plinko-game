@@ -19,29 +19,37 @@ import { RowsSelector } from "./RowsSelector";
 import { SidebarFooter } from "./SidebarFooter";
 
 type GameSidebarProps = {
+  animationsEnabled: boolean;
   config?: GameConfig;
   isRoundPlaying: boolean;
   lastBet: Bet | null;
+  onAnimationsChange: (enabled: boolean) => void;
   onBetPlaced: (bet: Bet) => Promise<void> | void;
   onFullscreenClick: () => void;
   onRiskChange: (risk: Risk) => void;
   onRowsChange: (rows: number) => void;
+  onSoundChange: (enabled: boolean) => void;
   isFullscreen: boolean;
   risk: Risk;
   rows: number;
+  soundEnabled: boolean;
 };
 
 export function GameSidebar({
+  animationsEnabled,
   config,
   isFullscreen,
   isRoundPlaying,
   lastBet,
+  onAnimationsChange,
   onBetPlaced,
   onFullscreenClick,
   onRiskChange,
   onRowsChange,
+  onSoundChange,
   risk,
   rows,
+  soundEnabled,
 }: GameSidebarProps) {
   const selectedMode = useGameSidebarStore((state) => state.selectedMode);
   const betAmount = useGameSidebarStore((state) => state.betAmount);
@@ -233,8 +241,12 @@ export function GameSidebar({
 
       <LastBetSummary lastBet={lastBet} />
       <SidebarFooter
+        animationsEnabled={animationsEnabled}
         isFullscreen={isFullscreen}
+        onAnimationsChange={onAnimationsChange}
         onFullscreenClick={onFullscreenClick}
+        onSoundChange={onSoundChange}
+        soundEnabled={soundEnabled}
       />
     </aside>
   );
