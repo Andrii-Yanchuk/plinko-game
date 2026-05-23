@@ -2,32 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { type SyntheticEvent, useState } from "react";
-import { register } from "@/lib/auth-api";
+import { useRegister } from "@/features/auth/register/model/useRegister";
 
 export function RegisterCard() {
-  const router = useRouter();
+  const { error, isLoading, submit } = useRegister();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError("");
-    setIsLoading(true);
-
-    try {
-      await register({ email, password });
-      router.push("/game");
-    } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Unable to create account",
-      );
-    } finally {
-      setIsLoading(false);
-    }
+    await submit({ email, password });
   }
 
   return (

@@ -2,30 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { type SyntheticEvent, useState } from "react";
-import { login } from "@/lib/auth-api";
+import { useLogin } from "@/features/auth/login/model/useLogin";
 
 export function AuthCard() {
-  const router = useRouter();
+  const { error, isLoading, submit } = useLogin();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError("");
-    setIsLoading(true);
-
-    try {
-      await login({ email, password });
-      router.push("/game");
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Unable to sign in");
-    } finally {
-      setIsLoading(false);
-    }
+    await submit({ email, password });
   }
 
   return (
