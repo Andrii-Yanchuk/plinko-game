@@ -146,12 +146,13 @@ Zustand keeps:
 
 ```txt
 selected rows/risk
-round playing state
-last local bet reference
 sidebar form values
 autoplay progress/stopping flags
 history filter UI state
 ```
+
+Round lifecycle state and the last bet reference stay local to `GameScreen`
+because they depend on component-local animation refs and promise resolution.
 
 ---
 
@@ -906,27 +907,18 @@ Create `src/widgets/game-screen/model/useGameScreenStore.ts`:
 
 ```ts
 import { create } from "zustand";
-import type { Bet } from "@/entities/bet/model/types";
 import type { Risk } from "@/entities/game/model/types";
 
 type GameScreenState = {
-  lastBet: Bet | null;
-  isRoundPlaying: boolean;
   rows: number;
   risk: Risk;
-  setLastBet: (bet: Bet | null) => void;
-  setRoundPlaying: (isRoundPlaying: boolean) => void;
   setRows: (rows: number) => void;
   setRisk: (risk: Risk) => void;
 };
 
 export const useGameScreenStore = create<GameScreenState>((set) => ({
-  lastBet: null,
-  isRoundPlaying: false,
   rows: 8,
   risk: "LOW",
-  setLastBet: (lastBet) => set({ lastBet }),
-  setRoundPlaying: (isRoundPlaying) => set({ isRoundPlaying }),
   setRows: (rows) => set({ rows }),
   setRisk: (risk) => set({ risk }),
 }));
@@ -949,11 +941,11 @@ Update imports:
 ./utils/delay -> @/shared/lib/delay
 ```
 
-- [ ] **Step 3: Replace local screen state with store selectors**
+- [ ] **Step 3: Replace stable screen selections with store selectors**
 
-Replace local `useState` for `lastBet`, `isRoundPlaying`, `rows`, and `risk` with selectors from `useGameScreenStore`.
+Replace local `useState` for `rows` and `risk` with selectors from `useGameScreenStore`.
 
-Keep `roundCompletionRef` local because it is an implementation detail of animation promise resolution, not application state.
+Keep `lastBet`, `isRoundPlaying`, and `roundCompletionRef` local because they are tied to animation promise resolution and should reset with the mounted screen instance.
 
 - [ ] **Step 4: Add compatibility shim**
 
