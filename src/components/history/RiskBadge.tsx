@@ -1,4 +1,4 @@
-import type { Risk } from "@/components/game/types";
+import type { Risk } from "@/entities/game/model/types";
 
 type RiskBadgeProps = {
   risk: Risk;

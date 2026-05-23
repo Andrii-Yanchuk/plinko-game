@@ -1,12 +1,4 @@
-import type { Risk } from "@/components/game/types";
-
-export type GameConfig = {
-  rows: number[];
-  risks: Risk[];
-  minBet: string;
-  maxBet: string;
-  payoutTables: Record<Risk, Record<number, number[]>>;
-};
+import type { GameConfig } from "@/entities/game/model/types";
 
 export async function getGameConfig() {
   const response = await fetch("/api/game/config", {

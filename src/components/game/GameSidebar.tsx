@@ -1,8 +1,8 @@
 "use client";
 
 import { type KeyboardEvent, useState } from "react";
-import type { Bet } from "@/lib/bets-api";
-import type { GameConfig } from "@/lib/game-api";
+import type { Bet } from "@/entities/bet/model/types";
+import type { GameConfig } from "@/entities/game/model/types";
 import type { BetControl, GameMode, Risk } from "./types";
 import { getNextBetAmount } from "./utils/amount";
 import { isBlockedNumberInputKey } from "./utils/input";

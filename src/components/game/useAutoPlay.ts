@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import type { Bet, PlaceBetPayload } from "@/lib/bets-api";
+import type { Bet, PlaceBetPayload } from "@/entities/bet/model/types";
 import { getMinimalUnitsFromCredits } from "./utils/amount";
 import type { Risk } from "./types";
 

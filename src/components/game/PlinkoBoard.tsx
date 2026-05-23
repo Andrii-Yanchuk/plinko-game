@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { LogoutButton } from "@/components/LogoutButton";
-import type { Bet } from "@/lib/bets-api";
-import type { GameConfig } from "@/lib/game-api";
+import type { Bet } from "@/entities/bet/model/types";
+import type { GameConfig } from "@/entities/game/model/types";
 import { HistoryButton } from "./HistoryButton";
 import { PlinkoCanvas } from "./PlinkoCanvas";
 import { UserBalance } from "../UserBalance";

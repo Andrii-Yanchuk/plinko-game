@@ -1,4 +1,4 @@
-import type { Bet } from "@/lib/bets-api";
+import type { Bet } from "@/entities/bet/model/types";
 
 type LastBetSummaryProps = {
   lastBet: Bet | null;

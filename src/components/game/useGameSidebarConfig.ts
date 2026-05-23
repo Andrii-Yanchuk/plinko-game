@@ -1,4 +1,4 @@
-import type { GameConfig } from "@/lib/game-api";
+import type { GameConfig } from "@/entities/game/model/types";
 import {
   getCreditsFromMinimalUnits,
   getMinimalUnitsFromCredits,

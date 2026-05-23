@@ -1,4 +1,4 @@
-import type { Risk } from "@/components/game/types";
+import type { Risk } from "@/entities/game/model/types";
 
 export const betHistoryPageSize = 20;
 export const minimalUnitsPerCredit = 1_000_000;

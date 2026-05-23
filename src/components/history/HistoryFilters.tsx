@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { Risk } from "@/components/game/types";
+import type { Risk } from "@/entities/game/model/types";
 import { riskOptions, rowOptions } from "./constants";
 
 type HistoryFiltersProps = {

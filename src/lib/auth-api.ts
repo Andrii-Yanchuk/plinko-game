@@ -1,21 +1,8 @@
-export type AuthUser = {
-  id: string;
-  email: string;
-};
-
-export type CurrentUser = AuthUser & {
-  balance: string;
-  createdAt: string;
-};
-
-export type AuthResponse = {
-  user: AuthUser;
-};
-
-type AuthPayload = {
-  email: string;
-  password: string;
-};
+import type {
+  AuthPayload,
+  AuthResponse,
+  CurrentUser,
+} from "@/entities/user/model/types";
 
 async function requestAuth(path: string, payload: AuthPayload) {
   const response = await fetch(path, {

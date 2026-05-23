@@ -1,4 +1,4 @@
-import type { Bet } from "@/lib/bets-api";
+import type { Bet } from "@/entities/bet/model/types";
 import { minimalUnitsPerCredit } from "./constants";
 
 export function formatCredits(value: string) {

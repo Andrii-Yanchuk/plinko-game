@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import type { Bet } from "@/lib/bets-api";
+import type { Bet } from "@/entities/bet/model/types";
 import { configureCanvas, drawPlinkoScene } from "./canvas/drawing";
 import { getBallFrame } from "./canvas/physics";
 import type { Risk } from "./types";

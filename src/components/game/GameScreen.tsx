@@ -2,8 +2,8 @@
 
 import { useCallback, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { CurrentUser } from "@/lib/auth-api";
-import type { Bet } from "@/lib/bets-api";
+import type { Bet } from "@/entities/bet/model/types";
+import type { CurrentUser } from "@/entities/user/model/types";
 import { getGameConfig } from "@/lib/game-api";
 import { queryKeys } from "@/lib/query-keys";
 import { GameSidebar } from "./GameSidebar";

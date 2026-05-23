@@ -1,4 +1,4 @@
-import type { Bet } from "@/lib/bets-api";
+import type { Bet } from "@/entities/bet/model/types";
 import { CreditAmount } from "./CreditAmount";
 import { formatDate, formatProfit, getProfit } from "./formatters";
 import { RiskBadge } from "./RiskBadge";
