@@ -3,9 +3,9 @@
 import { type KeyboardEvent, useState } from "react";
 import type { Bet } from "@/entities/bet/model/types";
 import type { GameConfig } from "@/entities/game/model/types";
+import { getNextBetAmount } from "@/entities/game/lib/amount";
+import { isBlockedNumberInputKey } from "@/entities/game/lib/input";
 import type { BetControl, GameMode, Risk } from "./types";
-import { getNextBetAmount } from "./utils/amount";
-import { isBlockedNumberInputKey } from "./utils/input";
 import { AutoPlayControls } from "./sidebar/AutoPlayControls";
 import { BetActionButton } from "./sidebar/BetActionButton";
 import { BetAmountControl } from "./sidebar/BetAmountControl";

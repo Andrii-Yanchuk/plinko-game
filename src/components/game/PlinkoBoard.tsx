@@ -2,13 +2,13 @@ import { useCallback, useMemo, useState } from "react";
 import { LogoutButton } from "@/components/LogoutButton";
 import type { Bet } from "@/entities/bet/model/types";
 import type { GameConfig } from "@/entities/game/model/types";
+import { getBallPath, getBoardHeight, getBucketLayout } from "@/widgets/plinko-board/lib/animation";
+import { getBetAnimationKey, getBoardRows } from "@/widgets/plinko-board/lib/board";
+import { getMultiplierTone } from "@/widgets/plinko-board/lib/multiplier";
 import { HistoryButton } from "./HistoryButton";
 import { PlinkoCanvas } from "./PlinkoCanvas";
 import { UserBalance } from "../UserBalance";
 import type { Risk } from "./types";
-import { getBallPath, getBoardHeight, getBucketLayout } from "./utils/animation";
-import { getBetAnimationKey, getBoardRows } from "./utils/board";
-import { getMultiplierTone } from "./utils/multiplier";
 
 type PlinkoBoardProps = {
   config?: GameConfig;

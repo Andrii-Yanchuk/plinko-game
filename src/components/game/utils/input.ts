@@ -1,3 +1,1 @@
-export function isBlockedNumberInputKey(key: string) {
-  return ["e", "E", "+", "-"].includes(key);
-}
+export * from "@/entities/game/lib/input";

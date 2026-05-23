@@ -2,8 +2,8 @@ import type { GameConfig } from "@/entities/game/model/types";
 import {
   getCreditsFromMinimalUnits,
   getMinimalUnitsFromCredits,
-} from "./utils/amount";
-import { getRowsProgress } from "./utils/rows";
+} from "@/entities/game/lib/amount";
+import { getRowsProgress } from "@/entities/game/lib/rows";
 import type { Risk } from "./types";
 
 const fallbackRows = [8, 9, 10, 11, 12, 13, 14, 15, 16];

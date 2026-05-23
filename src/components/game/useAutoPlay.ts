@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import type { Bet, PlaceBetPayload } from "@/entities/bet/model/types";
-import { getMinimalUnitsFromCredits } from "./utils/amount";
+import { getMinimalUnitsFromCredits } from "@/entities/game/lib/amount";
 import type { Risk } from "./types";
 
 type AutoProgress = {

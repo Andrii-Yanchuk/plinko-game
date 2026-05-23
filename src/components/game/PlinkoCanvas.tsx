@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef } from "react";
 import type { Bet } from "@/entities/bet/model/types";
-import { configureCanvas, drawPlinkoScene } from "./canvas/drawing";
-import { getBallFrame } from "./canvas/physics";
-import type { Risk } from "./types";
 import {
   getBallPath,
   getBoardHeight,
   getBoardWidth,
-} from "./utils/animation";
+} from "@/widgets/plinko-board/lib/animation";
+import { configureCanvas, drawPlinkoScene } from "@/widgets/plinko-board/lib/canvas/drawing";
+import { getBallFrame } from "@/widgets/plinko-board/lib/canvas/physics";
+import type { Risk } from "./types";
 
 type PlinkoCanvasProps = {
   boardRows: number;
