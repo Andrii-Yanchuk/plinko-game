@@ -1,8 +1,9 @@
 import type {
   AuthPayload,
   AuthResponse,
-  CurrentUser,
 } from "@/entities/user/model/types";
+
+export { getCurrentUser } from "@/entities/user/api/userApi";
 
 async function requestAuth(path: string, payload: AuthPayload) {
   const response = await fetch(path, {
@@ -55,17 +56,4 @@ export async function logout() {
   if (!response.ok) {
     throw new Error("Unable to sign out");
   }
-}
-
-export async function getCurrentUser() {
-  const response = await fetch("/api/users/me", {
-    method: "GET",
-    credentials: "same-origin",
-  });
-
-  if (!response.ok) {
-    throw new Error("Unable to load user profile");
-  }
-
-  return response.json() as Promise<CurrentUser>;
 }

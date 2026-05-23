@@ -1,18 +1,2 @@
-import type { GameConfig } from "@/entities/game/model/types";
-
-export async function getGameConfig() {
-  const response = await fetch("/api/game/config", {
-    method: "GET",
-    credentials: "same-origin",
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => null);
-    const message =
-      error?.message ?? error?.error ?? "Unable to load game config";
-
-    throw new Error(Array.isArray(message) ? message.join(", ") : message);
-  }
-
-  return response.json() as Promise<GameConfig>;
-}
+export { getGameConfig } from "@/entities/game/api/gameApi";
+export type { GameConfig } from "@/entities/game/model/types";

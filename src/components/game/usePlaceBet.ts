@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import type { Bet } from "@/entities/bet/model/types";
-import { placeBet } from "@/lib/bets-api";
+import { placeBet } from "@/entities/bet/api/betsApi";
 
 type UsePlaceBetParams = {
   onBetAmountSettled: (amount: string) => void;

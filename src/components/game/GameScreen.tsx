@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Bet } from "@/entities/bet/model/types";
 import type { CurrentUser } from "@/entities/user/model/types";
-import { getGameConfig } from "@/lib/game-api";
+import { getGameConfig } from "@/entities/game/api/gameApi";
 import { queryKeys } from "@/lib/query-keys";
 import { GameSidebar } from "./GameSidebar";
 import { PlinkoBoard } from "./PlinkoBoard";
