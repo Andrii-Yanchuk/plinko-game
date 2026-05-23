@@ -14,7 +14,7 @@ import { ModeToggle } from "./sidebar/ModeToggle";
 import { RiskSelector } from "./sidebar/RiskSelector";
 import { RowsSelector } from "./sidebar/RowsSelector";
 import { SidebarFooter } from "./sidebar/SidebarFooter";
-import { useAutoPlay } from "./useAutoPlay";
+import { useAutoPlay } from "@/features/auto-play/model/useAutoPlay";
 import { useGameSidebarConfig } from "./useGameSidebarConfig";
 import { usePlaceBet } from "@/features/place-bet/model/usePlaceBet";
 
