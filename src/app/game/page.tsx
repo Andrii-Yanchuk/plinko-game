@@ -1,4 +1,4 @@
-import { GameScreen } from "@/components/game/GameScreen";
+import { GameScreen } from "@/widgets/game-screen/ui/GameScreen";
 
 export default function GamePage() {
   return (
