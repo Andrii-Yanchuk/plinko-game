@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Bet } from "@/entities/bet/model/types";
 import { getGameConfig } from "@/entities/game/api/gameApi";
@@ -25,14 +25,10 @@ export function GameScreen() {
     isFullscreen,
     toggleFullscreen,
   } = useFullscreen<HTMLElement>();
-  const lastBet = useGameScreenStore((state) => state.lastBet);
-  const isRoundPlaying = useGameScreenStore((state) => state.isRoundPlaying);
+  const [lastBet, setLastBet] = useState<Bet | null>(null);
+  const [isRoundPlaying, setIsRoundPlaying] = useState(false);
   const rows = useGameScreenStore((state) => state.rows);
   const risk = useGameScreenStore((state) => state.risk);
-  const setLastBet = useGameScreenStore((state) => state.setLastBet);
-  const setRoundPlaying = useGameScreenStore(
-    (state) => state.setRoundPlaying,
-  );
   const setRows = useGameScreenStore((state) => state.setRows);
   const setRisk = useGameScreenStore((state) => state.setRisk);
   const { data: gameConfig } = useQuery({
@@ -55,13 +51,13 @@ export function GameScreen() {
 
     void delay(roundResultPauseMs).then(() => {
       roundCompletionRef.current = null;
-      setRoundPlaying(false);
+      setIsRoundPlaying(false);
       pendingRound.resolve();
     });
-  }, [queryClient, setRoundPlaying]);
+  }, [queryClient]);
 
   const handleBetPlaced = useCallback((bet: Bet) => {
-    setRoundPlaying(true);
+    setIsRoundPlaying(true);
     setLastBet(bet);
 
     return new Promise<void>((resolve) => {
@@ -70,7 +66,7 @@ export function GameScreen() {
         resolve,
       };
     });
-  }, [setLastBet, setRoundPlaying]);
+  }, []);
 
   return (
     <section
