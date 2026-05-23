@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import type { Bet, PlaceBetPayload } from "@/entities/bet/model/types";
 import { getMinimalUnitsFromCredits } from "@/entities/game/lib/amount";
 import type { Risk } from "@/entities/game/model/types";
@@ -28,8 +27,9 @@ export function useAutoPlay({ placeBet }: UseAutoPlayParams) {
   const setProgress = useAutoPlayStore((state) => state.setProgress);
   const setPlaying = useAutoPlayStore((state) => state.setPlaying);
   const setStopping = useAutoPlayStore((state) => state.setStopping);
+  const requestStop = useAutoPlayStore((state) => state.requestStop);
+  const clearStopRequest = useAutoPlayStore((state) => state.clearStopRequest);
   const reset = useAutoPlayStore((state) => state.reset);
-  const stopRequestedRef = useRef(false);
 
   async function start(params: AutoPlayParams) {
     const totalBets = parsePositiveInteger(params.numberOfBets);
@@ -47,7 +47,7 @@ export function useAutoPlay({ placeBet }: UseAutoPlayParams) {
     setPlaying(true);
     setStopping(false);
     setProgress({ current: 1, total: totalBets });
-    stopRequestedRef.current = false;
+    clearStopRequest();
 
     const stopOnProfitUnits = Number(
       getMinimalUnitsFromCredits(stopOnProfitAmount.toString()),
@@ -59,7 +59,7 @@ export function useAutoPlay({ placeBet }: UseAutoPlayParams) {
 
     try {
       for (let betIndex = 1; betIndex <= totalBets; betIndex += 1) {
-        if (stopRequestedRef.current) {
+        if (useAutoPlayStore.getState().stopRequested) {
           break;
         }
 
@@ -84,13 +84,13 @@ export function useAutoPlay({ placeBet }: UseAutoPlayParams) {
       }
     } finally {
       reset();
-      stopRequestedRef.current = false;
+      clearStopRequest();
     }
   }
 
   function stop() {
     setStopping(true);
-    stopRequestedRef.current = true;
+    requestStop();
   }
 
   return {
