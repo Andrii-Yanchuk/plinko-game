@@ -85,7 +85,7 @@ export function GameSidebar({
   });
 
   return (
-    <aside className="flex w-full shrink-0 flex-col border-b border-[#252D3E] bg-[#1A1F2ECC]/80 p-4 md:w-69.5 md:border-r md:border-b-0">
+    <aside className="flex w-full shrink-0 flex-col border-b border-[#252D3E] bg-[#1A1F2ECC]/80 p-4 md:h-[calc(100vh-4rem)] md:w-69.5 md:self-start md:overflow-y-auto md:border-r md:border-b-0">
       <ModeToggle
         disabled={isSidebarDisabled}
         mode={selectedMode}
