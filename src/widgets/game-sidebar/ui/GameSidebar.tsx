@@ -17,10 +17,11 @@ import { RowsSelector } from "./RowsSelector";
 import { SidebarFooter } from "./SidebarFooter";
 
 type GameSidebarProps = {
+  activeManualRoundCount: number;
   animationsEnabled: boolean;
   config?: GameConfig;
-  isRoundPlaying: boolean;
   lastBet: Bet | null;
+  manualRoundLimit: number;
   onAnimationsChange: (enabled: boolean) => void;
   onBetPlaced: (bet: Bet, context: RoundContext) => Promise<void> | void;
   onFullscreenClick: () => void;
@@ -34,11 +35,12 @@ type GameSidebarProps = {
 };
 
 export function GameSidebar({
+  activeManualRoundCount,
   animationsEnabled,
   config,
   isFullscreen,
-  isRoundPlaying,
   lastBet,
+  manualRoundLimit,
   onAnimationsChange,
   onBetPlaced,
   onFullscreenClick,
@@ -72,8 +74,9 @@ export function GameSidebar({
     stopOnLoss,
     stopOnProfit,
   } = useGameSidebarActions({
+    activeManualRoundCount,
     config,
-    isRoundPlaying,
+    manualRoundLimit,
     onBetPlaced,
     risk,
     rows,

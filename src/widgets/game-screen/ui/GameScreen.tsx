@@ -7,7 +7,11 @@ import { getGameConfig } from "@/entities/game/api/gameApi";
 import type { RoundContext } from "@/entities/game/model/types";
 import type { CurrentUser } from "@/entities/user/model/types";
 import { useGameSound } from "@/features/game-sound/model/useGameSound";
-import { getRoundResultPauseMs } from "@/widgets/game-screen/lib/roundTiming";
+import {
+  createActiveRound,
+  manualRoundLimit,
+  type ActiveRound,
+} from "@/widgets/game-screen/model/activeRound";
 import { GameSidebar } from "@/widgets/game-sidebar/ui/GameSidebar";
 import { PlinkoBoard } from "@/widgets/plinko-board/ui/PlinkoBoard";
 import { delay } from "@/shared/lib/delay";
@@ -17,9 +21,8 @@ import { useGameScreenStore } from "@/widgets/game-screen/model/useGameScreenSto
 
 export function GameScreen() {
   const queryClient = useQueryClient();
-  const roundCompletionRef = useRef<{
-    betId: string;
-    resultPauseMs: number;
+  const autoRoundCompletionRef = useRef<{
+    roundId: string;
     resolve: () => void;
   } | null>(null);
   const {
@@ -28,7 +31,7 @@ export function GameScreen() {
     toggleFullscreen,
   } = useFullscreen<HTMLElement>();
   const [lastBet, setLastBet] = useState<Bet | null>(null);
-  const [isRoundPlaying, setIsRoundPlaying] = useState(false);
+  const [activeRounds, setActiveRounds] = useState<ActiveRound[]>([]);
   const animationsEnabled = useGameScreenStore(
     (state) => state.animationsEnabled,
   );
@@ -48,6 +51,20 @@ export function GameScreen() {
   });
 
   const handleBetPresentationComplete = useCallback((bet: Bet) => {
+    const completedRound = activeRounds.find((round) => round.id === bet.betId);
+
+    if (!completedRound) {
+      return;
+    }
+
+    setActiveRounds((currentRounds) =>
+      currentRounds.map((round) =>
+        round.id === completedRound.id
+          ? { ...round, isResultVisible: true }
+          : round,
+      ),
+    );
+
     gameSound.playBucketHit();
     gameSound.playResult(bet);
 
@@ -57,35 +74,46 @@ export function GameScreen() {
         currentUser ? { ...currentUser, balance: bet.balanceAfter } : currentUser,
     );
 
-    const pendingRound = roundCompletionRef.current;
+    void delay(completedRound.resultPauseMs).then(() => {
+      setActiveRounds((currentRounds) =>
+        currentRounds.filter((round) => round.id !== completedRound.id),
+      );
 
-    if (pendingRound?.betId !== bet.betId) {
+      const pendingAutoRound = autoRoundCompletionRef.current;
+
+      if (pendingAutoRound?.roundId === completedRound.id) {
+        autoRoundCompletionRef.current = null;
+        pendingAutoRound.resolve();
+      }
+    });
+  }, [activeRounds, gameSound, queryClient]);
+
+  const handleBetPlaced = useCallback((bet: Bet, context: RoundContext) => {
+    const activeRound = createActiveRound({
+      animationsEnabled,
+      bet,
+      context,
+    });
+
+    gameSound.playBetStart();
+    setLastBet(bet);
+    setActiveRounds((currentRounds) => [...currentRounds, activeRound]);
+
+    if (context.mode === "Manual") {
       return;
     }
 
-    void delay(pendingRound.resultPauseMs).then(() => {
-      roundCompletionRef.current = null;
-      setIsRoundPlaying(false);
-      pendingRound.resolve();
-    });
-  }, [gameSound, queryClient]);
-
-  const handleBetPlaced = useCallback((bet: Bet, context: RoundContext) => {
-    gameSound.playBetStart();
-    setIsRoundPlaying(true);
-    setLastBet(bet);
-
     return new Promise<void>((resolve) => {
-      roundCompletionRef.current = {
-        betId: bet.betId,
-        resultPauseMs: getRoundResultPauseMs({
-          animationsEnabled,
-          mode: context.mode,
-        }),
+      autoRoundCompletionRef.current = {
+        roundId: activeRound.id,
         resolve,
       };
     });
   }, [animationsEnabled, gameSound]);
+
+  const activeManualRoundCount = activeRounds.filter(
+    (round) => round.mode === "Manual",
+  ).length;
 
   return (
     <section
@@ -94,10 +122,11 @@ export function GameScreen() {
     >
       <GameSidebar
         animationsEnabled={animationsEnabled}
+        activeManualRoundCount={activeManualRoundCount}
         config={gameConfig}
         isFullscreen={isFullscreen}
-        isRoundPlaying={isRoundPlaying}
         lastBet={lastBet}
+        manualRoundLimit={manualRoundLimit}
         onAnimationsChange={setAnimationsEnabled}
         onBetPlaced={handleBetPlaced}
         onFullscreenClick={toggleFullscreen}

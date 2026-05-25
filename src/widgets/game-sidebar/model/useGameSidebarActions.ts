@@ -14,16 +14,18 @@ import { useGameSidebarConfig } from "@/widgets/game-sidebar/model/useGameSideba
 import { useGameSidebarStore } from "@/widgets/game-sidebar/model/useGameSidebarStore";
 
 type UseGameSidebarActionsParams = {
+  activeManualRoundCount: number;
   config?: GameConfig;
-  isRoundPlaying: boolean;
+  manualRoundLimit: number;
   onBetPlaced: (bet: Bet, context: RoundContext) => Promise<void> | void;
   risk: Risk;
   rows: number;
 };
 
 export function useGameSidebarActions({
+  activeManualRoundCount,
   config,
-  isRoundPlaying,
+  manualRoundLimit,
   onBetPlaced,
   risk,
   rows,
@@ -154,9 +156,11 @@ export function useGameSidebarActions({
     void handleBetClick();
   }
 
+  const isManualRoundLimitReached = activeManualRoundCount >= manualRoundLimit;
   const isManualPlaying =
-    selectedMode === "Manual" && (placeBetMutation.isPending || isRoundPlaying);
-  const isSidebarDisabled = placeBetMutation.isPending || isRoundPlaying;
+    selectedMode === "Manual" &&
+    (placeBetMutation.isPending || isManualRoundLimitReached);
+  const isSidebarDisabled = placeBetMutation.isPending;
 
   return {
     autoPlay,
