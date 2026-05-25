@@ -83,6 +83,7 @@ export function ProgressionView() {
     mutationFn: claimMissionProgressionReward,
     onSuccess: handleClaimSuccess,
   });
+  const isAnyClaimPending = dailyClaim.isPending || missionClaim.isPending;
   const mutationError = dailyClaim.error ?? missionClaim.error;
 
   return (
@@ -123,15 +124,18 @@ export function ProgressionView() {
             <LevelCard progression={progression} />
             <DailyRewardCard
               daily={progression.daily}
+              isAnyClaimPending={isAnyClaimPending}
               isPending={dailyClaim.isPending}
               onClaim={() => dailyClaim.mutate()}
             />
             <MissionSection
+              isAnyClaimPending={isAnyClaimPending}
               missions={progression.missions.daily}
               missionClaim={missionClaim}
               title="Daily Missions"
             />
             <MissionSection
+              isAnyClaimPending={isAnyClaimPending}
               missions={progression.missions.starter}
               missionClaim={missionClaim}
               title="Starter Missions"
@@ -187,10 +191,12 @@ function LevelCard({ progression }: { progression: Progression }) {
 
 function DailyRewardCard({
   daily,
+  isAnyClaimPending,
   isPending,
   onClaim,
 }: {
   daily: Progression["daily"];
+  isAnyClaimPending: boolean;
   isPending: boolean;
   onClaim: () => void;
 }) {
@@ -216,7 +222,7 @@ function DailyRewardCard({
         </div>
         <button
           className="rounded-lg bg-[#F59E0B] px-4 py-2 text-sm font-bold text-[#101725] transition-colors hover:bg-[#FBBF24] disabled:cursor-not-allowed disabled:opacity-60"
-          disabled={!daily.canClaim || isPending}
+          disabled={!daily.canClaim || isAnyClaimPending}
           onClick={onClaim}
           type="button"
         >
@@ -236,10 +242,12 @@ function DailyRewardCard({
 }
 
 function MissionSection({
+  isAnyClaimPending,
   missionClaim,
   missions,
   title,
 }: {
+  isAnyClaimPending: boolean;
   missionClaim: ReturnType<
     typeof useMutation<ProgressionClaimResponse, Error, string>
   >;
@@ -259,6 +267,7 @@ function MissionSection({
       <div className="flex flex-col gap-3">
         {missions.map((mission) => (
           <MissionCard
+            isAnyClaimPending={isAnyClaimPending}
             key={mission.id}
             mission={mission}
             missionClaim={missionClaim}
@@ -270,9 +279,11 @@ function MissionSection({
 }
 
 function MissionCard({
+  isAnyClaimPending,
   mission,
   missionClaim,
 }: {
+  isAnyClaimPending: boolean;
   mission: ProgressionMission;
   missionClaim: ReturnType<
     typeof useMutation<ProgressionClaimResponse, Error, string>
@@ -282,7 +293,7 @@ function MissionCard({
   const isClaiming =
     missionClaim.isPending && missionClaim.variables === mission.id;
   const shouldShowClaimButton = mission.claimable || mission.claimedAt;
-  const isButtonDisabled = !mission.claimable || isClaiming;
+  const isButtonDisabled = !mission.claimable || isAnyClaimPending;
   const claimLabel = isClaiming
     ? "Claiming..."
     : mission.claimedAt
