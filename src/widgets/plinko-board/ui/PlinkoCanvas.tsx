@@ -166,6 +166,7 @@ export function PlinkoCanvas({
       ...sceneSize,
       boardRows,
       ballFrames: activeRounds
+        .filter((round) => !completedRoundIdsRef.current.has(round.id))
         .map((round) => {
           const ballPath = getBallPath(round.bet, rows, round.risk, boardRows);
 
