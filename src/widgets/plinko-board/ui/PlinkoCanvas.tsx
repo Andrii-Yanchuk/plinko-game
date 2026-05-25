@@ -155,7 +155,7 @@ export function PlinkoCanvas({
         rows,
       });
 
-      if (ballFrames.length === 0 && activeRounds.length === 0) {
+      if (ballFrames.length === 0) {
         return;
       }
 

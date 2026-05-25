@@ -29,6 +29,7 @@ export function PlinkoBoard({
   rows,
 }: PlinkoBoardProps) {
   const completedNoAnimationRoundIdsRef = useRef(new Set<string>());
+  const noAnimationTimeoutIdsRef = useRef(new Map<string, number>());
   const multiplierSlots = config?.payoutTables[risk]?.[rows] ?? [];
   const boardRows = getBoardRows(config, rows);
   const visibleBucketIndexes = useMemo(
@@ -57,6 +58,13 @@ export function PlinkoBoard({
       }
     });
 
+    noAnimationTimeoutIdsRef.current.forEach((timeoutId, roundId) => {
+      if (!activeRoundIds.has(roundId)) {
+        window.clearTimeout(timeoutId);
+        noAnimationTimeoutIdsRef.current.delete(roundId);
+      }
+    });
+
     if (isAnimationEnabled) {
       return;
     }
@@ -66,11 +74,24 @@ export function PlinkoBoard({
       .forEach((round) => {
         completedNoAnimationRoundIdsRef.current.add(round.id);
 
-        window.setTimeout(() => {
+        const timeoutId = window.setTimeout(() => {
+          noAnimationTimeoutIdsRef.current.delete(round.id);
           onRoundAnimationComplete(round.id);
         }, 0);
+
+        noAnimationTimeoutIdsRef.current.set(round.id, timeoutId);
       });
   }, [activeRounds, isAnimationEnabled, onRoundAnimationComplete]);
+
+  useEffect(
+    () => () => {
+      noAnimationTimeoutIdsRef.current.forEach((timeoutId) => {
+        window.clearTimeout(timeoutId);
+      });
+      noAnimationTimeoutIdsRef.current.clear();
+    },
+    [],
+  );
 
   return (
     <div className="relative flex min-h-140 flex-1 flex-col overflow-hidden bg-[#101725]">

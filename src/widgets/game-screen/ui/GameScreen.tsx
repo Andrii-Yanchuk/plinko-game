@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Bet } from "@/entities/bet/model/types";
 import { getGameConfig } from "@/entities/game/api/gameApi";
@@ -25,6 +25,7 @@ export function GameScreen() {
     roundId: string;
     resolve: () => void;
   } | null>(null);
+  const completedPresentationRoundIdsRef = useRef(new Set<string>());
   const {
     elementRef: gameScreenRef,
     isFullscreen,
@@ -50,12 +51,28 @@ export function GameScreen() {
     queryKey: queryKeys.gameConfig,
   });
 
+  useEffect(() => {
+    const activeRoundIds = new Set(activeRounds.map((round) => round.id));
+
+    completedPresentationRoundIdsRef.current.forEach((roundId) => {
+      if (!activeRoundIds.has(roundId)) {
+        completedPresentationRoundIdsRef.current.delete(roundId);
+      }
+    });
+  }, [activeRounds]);
+
   const handleBetPresentationComplete = useCallback((roundId: string) => {
+    if (completedPresentationRoundIdsRef.current.has(roundId)) {
+      return;
+    }
+
     const completedRound = activeRounds.find((round) => round.id === roundId);
 
     if (!completedRound) {
       return;
     }
+
+    completedPresentationRoundIdsRef.current.add(roundId);
 
     const { bet } = completedRound;
 
