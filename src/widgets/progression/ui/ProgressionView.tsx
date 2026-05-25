@@ -87,15 +87,18 @@ export function ProgressionView() {
 
   return (
     <main className="min-h-screen bg-[#101725] pb-16 text-[#F4F7FB]">
-      <header className="flex h-16 items-center gap-4 border-b border-[#222A3B]/80 px-4">
+      <header className="flex h-16 min-w-0 items-center gap-2 border-b border-[#222A3B]/80 px-3 sm:gap-4 sm:px-4">
         <Link
-          className="flex items-center gap-1 rounded-[8px] border border-[#2A2F3E] bg-[#1A1F2E] px-4 py-2 text-[16px] text-[#D1D5DC] transition-colors hover:bg-[#222A3D]"
+          className="flex shrink-0 items-center gap-1 rounded-[8px] border border-[#2A2F3E] bg-[#1A1F2E] px-3 py-2 text-sm text-[#D1D5DC] transition-colors hover:bg-[#222A3D] sm:px-4 sm:text-[16px]"
           href="/game"
         >
-          <Image src="/back-icon.svg" alt="Back icon" width={16} height={16} />
-          Back to Game
+          <Image src="/back-icon.svg" alt="" width={16} height={16} />
+          <span className="sm:hidden">Back</span>
+          <span className="hidden sm:inline">Back to Game</span>
         </Link>
-        <h1 className="text-[24px] font-bold">Progression</h1>
+        <h1 className="min-w-0 truncate text-xl font-bold sm:text-[24px]">
+          Progression
+        </h1>
       </header>
 
       <section className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-6">
@@ -220,7 +223,7 @@ function DailyRewardCard({
           {label}
         </button>
       </div>
-      <div className="mt-4 grid grid-cols-2 gap-3">
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <RewardPill icon={<CoinIcon />} label="Credits">
           {formatCredits(daily.reward.credits)}
         </RewardPill>
@@ -350,10 +353,12 @@ function RewardPill({
   label: string;
 }) {
   return (
-    <div className="flex items-center gap-2 rounded-md bg-[#101725]/70 px-3 py-2 text-sm">
-      <span className="text-[#8D96A8]">{icon}</span>
-      <span className="text-[#8D96A8]">{label}</span>
-      <span className="font-bold text-[#F4F7FB]">{children}</span>
+    <div className="flex min-w-0 items-center gap-2 rounded-md bg-[#101725]/70 px-2.5 py-2 text-sm sm:px-3">
+      <span className="shrink-0 text-[#8D96A8]">{icon}</span>
+      <span className="shrink-0 text-[#8D96A8]">{label}</span>
+      <span className="min-w-0 truncate font-bold text-[#F4F7FB]">
+        {children}
+      </span>
     </div>
   );
 }
@@ -367,11 +372,19 @@ function ProgressBar({
   trackClassName: string;
   valueClassName: string;
 }) {
+  const ariaValue = Math.round(clampPercent(percent));
+
   return (
-    <div className={`h-2 overflow-hidden rounded-full ${trackClassName}`}>
+    <div
+      aria-valuemax={100}
+      aria-valuemin={0}
+      aria-valuenow={ariaValue}
+      className={`h-2 overflow-hidden rounded-full ${trackClassName}`}
+      role="progressbar"
+    >
       <div
         className={`h-full rounded-full ${valueClassName}`}
-        style={{ width: `${clampPercent(percent)}%` }}
+        style={{ width: `${ariaValue}%` }}
       />
     </div>
   );
