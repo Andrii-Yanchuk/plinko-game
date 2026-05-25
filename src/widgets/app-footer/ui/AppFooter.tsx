@@ -33,9 +33,9 @@ export function AppFooter() {
               key={item.href}
               aria-current={isActive ? "page" : undefined}
               className={[
-                "relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 px-3 pt-2 pb-1 text-[11px] leading-none font-medium transition-colors",
+                "relative flex w-fit min-w-12 flex-col items-center justify-center gap-1 px-2 pt-2 pb-1 text-[11px] leading-none font-medium transition-colors",
                 isActive
-                  ? "text-[#00C950] before:absolute before:top-0 before:left-1/2 before:h-1 before:w-14 before:-translate-x-1/2 before:rounded-b-full before:bg-[#00C950] before:content-['']"
+                  ? "text-[#00C950] before:absolute before:inset-x-0 before:top-0 before:h-1 before:rounded-b-full before:bg-[#00C950] before:content-['']"
                   : "text-[#8B93A7] hover:text-[#F4F7FB]",
               ].join(" ")}
               href={item.href}
