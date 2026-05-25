@@ -4,8 +4,10 @@ import { useCallback, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Bet } from "@/entities/bet/model/types";
 import { getGameConfig } from "@/entities/game/api/gameApi";
+import type { RoundContext } from "@/entities/game/model/types";
 import type { CurrentUser } from "@/entities/user/model/types";
 import { useGameSound } from "@/features/game-sound/model/useGameSound";
+import { getRoundResultPauseMs } from "@/widgets/game-screen/lib/roundTiming";
 import { GameSidebar } from "@/widgets/game-sidebar/ui/GameSidebar";
 import { PlinkoBoard } from "@/widgets/plinko-board/ui/PlinkoBoard";
 import { delay } from "@/shared/lib/delay";
@@ -13,12 +15,11 @@ import { queryKeys } from "@/shared/lib/queryKeys";
 import { useFullscreen } from "@/shared/lib/useFullscreen";
 import { useGameScreenStore } from "@/widgets/game-screen/model/useGameScreenStore";
 
-const roundResultPauseMs = 1000;
-
 export function GameScreen() {
   const queryClient = useQueryClient();
   const roundCompletionRef = useRef<{
     betId: string;
+    resultPauseMs: number;
     resolve: () => void;
   } | null>(null);
   const {
@@ -46,7 +47,7 @@ export function GameScreen() {
     queryKey: queryKeys.gameConfig,
   });
 
-  const handleBetAnimationComplete = useCallback((bet: Bet) => {
+  const handleBetPresentationComplete = useCallback((bet: Bet) => {
     gameSound.playBucketHit();
     gameSound.playResult(bet);
 
@@ -62,14 +63,14 @@ export function GameScreen() {
       return;
     }
 
-    void delay(roundResultPauseMs).then(() => {
+    void delay(pendingRound.resultPauseMs).then(() => {
       roundCompletionRef.current = null;
       setIsRoundPlaying(false);
       pendingRound.resolve();
     });
   }, [gameSound, queryClient]);
 
-  const handleBetPlaced = useCallback((bet: Bet) => {
+  const handleBetPlaced = useCallback((bet: Bet, context: RoundContext) => {
     gameSound.playBetStart();
     setIsRoundPlaying(true);
     setLastBet(bet);
@@ -77,10 +78,14 @@ export function GameScreen() {
     return new Promise<void>((resolve) => {
       roundCompletionRef.current = {
         betId: bet.betId,
+        resultPauseMs: getRoundResultPauseMs({
+          animationsEnabled,
+          mode: context.mode,
+        }),
         resolve,
       };
     });
-  }, [gameSound]);
+  }, [animationsEnabled, gameSound]);
 
   return (
     <section
@@ -107,7 +112,7 @@ export function GameScreen() {
         isAnimationEnabled={animationsEnabled}
         config={gameConfig}
         lastBet={lastBet}
-        onBetAnimationComplete={handleBetAnimationComplete}
+        onBetAnimationComplete={handleBetPresentationComplete}
         onPegImpact={gameSound.playPegHit}
         risk={risk}
         rows={rows}

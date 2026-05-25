@@ -2,6 +2,10 @@ export type BetControl = "1/2" | "2x" | "MAX";
 export type GameMode = "Manual" | "Auto";
 export type Risk = "LOW" | "MEDIUM" | "HIGH";
 
+export type RoundContext = {
+  mode: GameMode;
+};
+
 export type GameConfig = {
   rows: number[];
   risks: Risk[];
