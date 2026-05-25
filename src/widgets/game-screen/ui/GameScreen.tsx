@@ -137,7 +137,7 @@ export function GameScreen() {
   return (
     <section
       ref={gameScreenRef}
-      className="flex min-h-screen w-full overflow-hidden bg-[#101725] max-md:flex-col"
+      className="flex min-h-screen w-full overflow-hidden bg-[#101725] pb-16 max-md:flex-col"
     >
       <GameSidebar
         animationsEnabled={animationsEnabled}
