@@ -2,7 +2,10 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { LogoutButton } from "@/features/auth/logout/ui/LogoutButton";
 import type { GameConfig, Risk } from "@/entities/game/model/types";
 import type { ActiveRound } from "@/widgets/game-screen/model/activeRound";
-import { getBoardHeight, getBucketLayout } from "@/widgets/plinko-board/lib/animation";
+import {
+  getBoardHeight,
+  getBucketLayout,
+} from "@/widgets/plinko-board/lib/animation";
 import { getBoardRows } from "@/widgets/plinko-board/lib/board";
 import { getMultiplierTone } from "@/widgets/plinko-board/lib/multiplier";
 import { HistoryButton } from "./HistoryButton";
@@ -121,7 +124,7 @@ export function PlinkoBoard({
         </div>
       </header>
 
-      <div className="flex flex-1 flex-col items-center justify-start px-4 pt-24">
+      <div className="flex flex-1 flex-col items-center justify-start px-4 pt-6">
         <div
           className="relative w-full max-w-160"
           style={{ height: boardHeight }}

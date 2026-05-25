@@ -26,7 +26,7 @@ export function SidebarFooter({
 
   return (
     <>
-      <div className="mt-auto -mx-4 mb-12 flex h-17.5 items-center justify-between border-t border-[#2A2F3E] px-4">
+      <div className="mt-auto -mx-4 flex h-17.5 items-center justify-between border-t border-[#2A2F3E] px-4">
         <button
           aria-label="Fullscreen"
           aria-pressed={isFullscreen}
