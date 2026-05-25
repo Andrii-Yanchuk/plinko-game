@@ -1,5 +1,9 @@
 import type { Bet } from "@/entities/bet/model/types";
 import { formatDate, formatProfit, getProfit } from "@/entities/bet/lib/formatters";
+import {
+  getMultiplierTextTone,
+  multiplierColor,
+} from "@/widgets/plinko-board/lib/multiplier";
 import { CreditAmount } from "./CreditAmount";
 import { RiskBadge } from "./RiskBadge";
 
@@ -27,7 +31,9 @@ export function HistoryItem({ bet }: HistoryItemProps) {
 
       <div>
         <div className="text-[12px] text-[#6F788B]">Multiplier</div>
-        <div className="text-[18px] font-bold text-[#00E783]">
+        <div
+          className={`inline-flex rounded border bg-transparent px-2 py-0.5 text-[18px] font-bold ${multiplierColor(Number(bet.multiplier))} ${getMultiplierTextTone(bet.multiplier)}`}
+        >
           {bet.multiplier}x
         </div>
       </div>

@@ -117,7 +117,7 @@ export function PlinkoBoard({
 
               return (
                 <div
-                  className={`flex h-8 items-center justify-center rounded-lg border px-1 text-[11px] font-bold transition-[transform,box-shadow,background-color,border-color,color] duration-200 ${getMultiplierTone(index, multiplierSlots.length, isActive)}`}
+                  className={`flex h-8 items-center justify-center rounded-lg border px-1 text-[11px] font-bold transition-[transform,box-shadow,background-color,border-color,color] duration-200 ${getMultiplierTone(slot, isActive)}`}
                   key={`${slot}-${index}`}
                   style={{ width: bucketWidth }}
                 >
