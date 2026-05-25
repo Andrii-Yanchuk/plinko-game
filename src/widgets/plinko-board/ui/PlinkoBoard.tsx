@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { LogoutButton } from "@/features/auth/logout/ui/LogoutButton";
 import type { GameConfig, Risk } from "@/entities/game/model/types";
 import type { ActiveRound } from "@/widgets/game-screen/model/activeRound";
@@ -49,6 +49,18 @@ export function PlinkoBoard({
   const { bucketGap, bucketWidth } = getBucketLayout(rows);
   const boardHeight = getBoardHeight(boardRows);
 
+  const clearPendingNoAnimationTimeout = useCallback((roundId: string) => {
+    const timeoutId = noAnimationTimeoutIdsRef.current.get(roundId);
+
+    if (timeoutId === undefined) {
+      return;
+    }
+
+    window.clearTimeout(timeoutId);
+    noAnimationTimeoutIdsRef.current.delete(roundId);
+    completedNoAnimationRoundIdsRef.current.delete(roundId);
+  }, []);
+
   useEffect(() => {
     const activeRoundIds = new Set(activeRounds.map((round) => round.id));
 
@@ -58,10 +70,9 @@ export function PlinkoBoard({
       }
     });
 
-    noAnimationTimeoutIdsRef.current.forEach((timeoutId, roundId) => {
+    noAnimationTimeoutIdsRef.current.forEach((_, roundId) => {
       if (!activeRoundIds.has(roundId)) {
-        window.clearTimeout(timeoutId);
-        noAnimationTimeoutIdsRef.current.delete(roundId);
+        clearPendingNoAnimationTimeout(roundId);
       }
     });
 
@@ -81,16 +92,20 @@ export function PlinkoBoard({
 
         noAnimationTimeoutIdsRef.current.set(round.id, timeoutId);
       });
-  }, [activeRounds, isAnimationEnabled, onRoundAnimationComplete]);
+  }, [
+    activeRounds,
+    clearPendingNoAnimationTimeout,
+    isAnimationEnabled,
+    onRoundAnimationComplete,
+  ]);
 
   useEffect(
     () => () => {
-      noAnimationTimeoutIdsRef.current.forEach((timeoutId) => {
-        window.clearTimeout(timeoutId);
+      noAnimationTimeoutIdsRef.current.forEach((_, roundId) => {
+        clearPendingNoAnimationTimeout(roundId);
       });
-      noAnimationTimeoutIdsRef.current.clear();
     },
-    [],
+    [clearPendingNoAnimationTimeout],
   );
 
   return (
