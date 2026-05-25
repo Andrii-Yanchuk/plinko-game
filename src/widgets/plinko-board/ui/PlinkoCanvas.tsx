@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef } from "react";
-import type { Bet } from "@/entities/bet/model/types";
+import { useEffect, useRef } from "react";
 import { getCompletedImpactIndex } from "@/features/game-sound/lib/soundEvents";
+import type { ActiveRound } from "@/widgets/game-screen/model/activeRound";
 import {
   getBallPath,
   getBoardHeight,
@@ -8,46 +8,69 @@ import {
 } from "@/widgets/plinko-board/lib/animation";
 import {
   configureCanvas,
+  type BallFrame,
   drawPlinkoScene,
 } from "@/widgets/plinko-board/lib/canvas/drawing";
 import {
   getBallFrame,
   stepDurationMs,
 } from "@/widgets/plinko-board/lib/canvas/physics";
-import type { Risk } from "@/entities/game/model/types";
 
 type PlinkoCanvasProps = {
+  activeRounds: ActiveRound[];
   boardRows: number;
   isAnimationEnabled: boolean;
-  lastBet: Bet | null;
-  onAnimationComplete: () => void;
+  onAnimationComplete: (roundId: string) => void;
   onPegImpact: () => void;
-  risk: Risk;
   rows: number;
 };
 
 export function PlinkoCanvas({
+  activeRounds,
   boardRows,
   isAnimationEnabled,
-  lastBet,
   onAnimationComplete,
   onPegImpact,
-  risk,
   rows,
 }: PlinkoCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const lastImpactSoundIndexRef = useRef<number | null>(null);
+  const startedAtByRoundRef = useRef(new Map<string, number>());
+  const lastImpactSoundIndexByRoundRef = useRef(new Map<string, number>());
+  const completedRoundIdsRef = useRef(new Set<string>());
+  const onAnimationCompleteRef = useRef(onAnimationComplete);
   const onPegImpactRef = useRef(onPegImpact);
   const boardHeight = getBoardHeight(boardRows);
   const boardWidth = getBoardWidth();
-  const ballPath = useMemo(
-    () => getBallPath(lastBet, rows, risk, boardRows),
-    [boardRows, lastBet, risk, rows],
-  );
+
+  useEffect(() => {
+    onAnimationCompleteRef.current = onAnimationComplete;
+  }, [onAnimationComplete]);
 
   useEffect(() => {
     onPegImpactRef.current = onPegImpact;
   }, [onPegImpact]);
+
+  useEffect(() => {
+    const activeRoundIds = new Set(activeRounds.map((round) => round.id));
+
+    startedAtByRoundRef.current.forEach((_, roundId) => {
+      if (!activeRoundIds.has(roundId)) {
+        startedAtByRoundRef.current.delete(roundId);
+      }
+    });
+
+    lastImpactSoundIndexByRoundRef.current.forEach((_, roundId) => {
+      if (!activeRoundIds.has(roundId)) {
+        lastImpactSoundIndexByRoundRef.current.delete(roundId);
+      }
+    });
+
+    completedRoundIdsRef.current.forEach((roundId) => {
+      if (!activeRoundIds.has(roundId)) {
+        completedRoundIdsRef.current.delete(roundId);
+      }
+    });
+  }, [activeRounds]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -68,8 +91,6 @@ export function PlinkoCanvas({
     const renderingContext: CanvasRenderingContext2D = context;
     const sceneSize = { height: boardHeight, width: boardWidth };
     let animationFrameId = 0;
-    let startedAt: number | null = null;
-    lastImpactSoundIndexRef.current = null;
 
     if (!isAnimationEnabled) {
       drawPlinkoScene(renderingContext, {
@@ -80,45 +101,61 @@ export function PlinkoCanvas({
       return;
     }
 
-    if (ballPath.length === 0) {
-      drawPlinkoScene(renderingContext, {
-        ...sceneSize,
-        boardRows,
-        rows,
-      });
-      onAnimationComplete();
-      return;
-    }
-
     function animate(timestamp: number) {
-      startedAt ??= timestamp;
+      const ballFrames: BallFrame[] = [];
 
-      const elapsedMs = timestamp - startedAt;
-      const frame = getBallFrame(ballPath, elapsedMs);
-      const impactSoundIndex = getCompletedImpactIndex(
-        ballPath.length,
-        elapsedMs,
-        stepDurationMs,
-      );
+      activeRounds.forEach((round) => {
+        if (completedRoundIdsRef.current.has(round.id)) {
+          return;
+        }
 
-      if (
-        impactSoundIndex !== null &&
-        impactSoundIndex !== lastImpactSoundIndexRef.current &&
-        impactSoundIndex < ballPath.length - 1
-      ) {
-        lastImpactSoundIndexRef.current = impactSoundIndex;
-        onPegImpactRef.current();
-      }
+        const ballPath = getBallPath(round.bet, rows, round.risk, boardRows);
+
+        if (ballPath.length === 0) {
+          completedRoundIdsRef.current.add(round.id);
+          onAnimationCompleteRef.current(round.id);
+          return;
+        }
+
+        if (!startedAtByRoundRef.current.has(round.id)) {
+          startedAtByRoundRef.current.set(round.id, timestamp);
+        }
+
+        const startedAt = startedAtByRoundRef.current.get(round.id) ?? timestamp;
+        const elapsedMs = timestamp - startedAt;
+        const frame = getBallFrame(ballPath, elapsedMs);
+        const impactSoundIndex = getCompletedImpactIndex(
+          ballPath.length,
+          elapsedMs,
+          stepDurationMs,
+        );
+
+        if (
+          impactSoundIndex !== null &&
+          impactSoundIndex !==
+            lastImpactSoundIndexByRoundRef.current.get(round.id) &&
+          impactSoundIndex < ballPath.length - 1
+        ) {
+          lastImpactSoundIndexByRoundRef.current.set(round.id, impactSoundIndex);
+          onPegImpactRef.current();
+        }
+
+        ballFrames.push(frame);
+
+        if (frame.isComplete) {
+          completedRoundIdsRef.current.add(round.id);
+          onAnimationCompleteRef.current(round.id);
+        }
+      });
 
       drawPlinkoScene(renderingContext, {
         ...sceneSize,
         boardRows,
+        ballFrames,
         rows,
-        ...frame,
       });
 
-      if (frame.isComplete) {
-        onAnimationComplete();
+      if (ballFrames.length === 0 && activeRounds.length === 0) {
         return;
       }
 
@@ -127,8 +164,14 @@ export function PlinkoCanvas({
 
     drawPlinkoScene(renderingContext, {
       ...sceneSize,
-      ballPosition: ballPath[0],
       boardRows,
+      ballFrames: activeRounds
+        .map((round) => {
+          const ballPath = getBallPath(round.bet, rows, round.risk, boardRows);
+
+          return { ballPosition: ballPath[0] };
+        })
+        .filter(({ ballPosition }) => Boolean(ballPosition)),
       rows,
     });
     animationFrameId = window.requestAnimationFrame(animate);
@@ -137,12 +180,11 @@ export function PlinkoCanvas({
       window.cancelAnimationFrame(animationFrameId);
     };
   }, [
-    ballPath,
+    activeRounds,
     boardHeight,
     boardWidth,
     boardRows,
     isAnimationEnabled,
-    onAnimationComplete,
     rows,
   ]);
 

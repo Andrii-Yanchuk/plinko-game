@@ -1,84 +1,76 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { LogoutButton } from "@/features/auth/logout/ui/LogoutButton";
-import type { Bet } from "@/entities/bet/model/types";
 import type { GameConfig, Risk } from "@/entities/game/model/types";
-import { getBallPath, getBoardHeight, getBucketLayout } from "@/widgets/plinko-board/lib/animation";
-import { getBetAnimationKey, getBoardRows } from "@/widgets/plinko-board/lib/board";
+import type { ActiveRound } from "@/widgets/game-screen/model/activeRound";
+import { getBoardHeight, getBucketLayout } from "@/widgets/plinko-board/lib/animation";
+import { getBoardRows } from "@/widgets/plinko-board/lib/board";
 import { getMultiplierTone } from "@/widgets/plinko-board/lib/multiplier";
 import { HistoryButton } from "./HistoryButton";
 import { PlinkoCanvas } from "./PlinkoCanvas";
 import { UserBalance } from "@/entities/user/ui/UserBalance";
 
 type PlinkoBoardProps = {
+  activeRounds: ActiveRound[];
   config?: GameConfig;
   isAnimationEnabled: boolean;
-  lastBet: Bet | null;
-  onBetAnimationComplete: (bet: Bet) => void;
+  onRoundAnimationComplete: (roundId: string) => void;
   onPegImpact: () => void;
   risk: Risk;
   rows: number;
 };
 
 export function PlinkoBoard({
+  activeRounds,
   config,
   isAnimationEnabled,
-  lastBet,
-  onBetAnimationComplete,
+  onRoundAnimationComplete,
   onPegImpact,
   risk,
   rows,
 }: PlinkoBoardProps) {
-  const [completedAnimationKey, setCompletedAnimationKey] = useState("");
+  const completedNoAnimationRoundIdsRef = useRef(new Set<string>());
   const multiplierSlots = config?.payoutTables[risk]?.[rows] ?? [];
   const boardRows = getBoardRows(config, rows);
-  const activeBucketIndex =
-    lastBet?.rows === rows && lastBet.risk === risk ? lastBet.bucketIndex : null;
-  const animationKey = getBetAnimationKey(
-    lastBet,
-    rows,
-    risk,
-    activeBucketIndex,
+  const visibleBucketIndexes = useMemo(
+    () =>
+      new Set(
+        activeRounds
+          .filter(
+            (round) =>
+              round.isResultVisible &&
+              round.rows === rows &&
+              round.risk === risk,
+          )
+          .map((round) => round.bet.bucketIndex),
+      ),
+    [activeRounds, risk, rows],
   );
-  const ballPath = useMemo(
-    () => getBallPath(lastBet, rows, risk, boardRows),
-    [boardRows, lastBet, risk, rows],
-  );
-  const hasFinishedBallAnimation =
-    ballPath.length === 0 || completedAnimationKey === animationKey;
-  const shouldAnimateBall =
-    isAnimationEnabled &&
-    Boolean(animationKey) &&
-    completedAnimationKey !== animationKey;
-  const visibleBucketIndex = hasFinishedBallAnimation
-    ? activeBucketIndex
-    : null;
   const { bucketGap, bucketWidth } = getBucketLayout(rows);
   const boardHeight = getBoardHeight(boardRows);
 
-  const handleAnimationComplete = useCallback(() => {
-    setCompletedAnimationKey(animationKey);
-
-    if (lastBet && animationKey) {
-      onBetAnimationComplete(lastBet);
-    }
-  }, [animationKey, lastBet, onBetAnimationComplete]);
-
   useEffect(() => {
-    if (isAnimationEnabled || !animationKey || completedAnimationKey === animationKey) {
+    const activeRoundIds = new Set(activeRounds.map((round) => round.id));
+
+    completedNoAnimationRoundIdsRef.current.forEach((roundId) => {
+      if (!activeRoundIds.has(roundId)) {
+        completedNoAnimationRoundIdsRef.current.delete(roundId);
+      }
+    });
+
+    if (isAnimationEnabled) {
       return;
     }
 
-    const timeoutId = window.setTimeout(handleAnimationComplete, 0);
+    activeRounds
+      .filter((round) => !completedNoAnimationRoundIdsRef.current.has(round.id))
+      .forEach((round) => {
+        completedNoAnimationRoundIdsRef.current.add(round.id);
 
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [
-    animationKey,
-    completedAnimationKey,
-    handleAnimationComplete,
-    isAnimationEnabled,
-  ]);
+        window.setTimeout(() => {
+          onRoundAnimationComplete(round.id);
+        }, 0);
+      });
+  }, [activeRounds, isAnimationEnabled, onRoundAnimationComplete]);
 
   return (
     <div className="relative flex min-h-140 flex-1 flex-col overflow-hidden bg-[#101725]">
@@ -99,12 +91,11 @@ export function PlinkoBoard({
           style={{ height: boardHeight }}
         >
           <PlinkoCanvas
+            activeRounds={activeRounds}
             boardRows={boardRows}
-            isAnimationEnabled={shouldAnimateBall}
-            lastBet={lastBet}
-            onAnimationComplete={handleAnimationComplete}
+            isAnimationEnabled={isAnimationEnabled}
+            onAnimationComplete={onRoundAnimationComplete}
             onPegImpact={onPegImpact}
-            risk={risk}
             rows={rows}
           />
 
@@ -113,7 +104,7 @@ export function PlinkoBoard({
             style={{ gap: bucketGap }}
           >
             {multiplierSlots.map((slot, index) => {
-              const isActive = visibleBucketIndex === index;
+              const isActive = visibleBucketIndexes.has(index);
 
               return (
                 <div

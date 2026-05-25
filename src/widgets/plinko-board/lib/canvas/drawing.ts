@@ -9,11 +9,15 @@ type CanvasSize = {
   width: number;
 };
 
-type DrawSceneParams = CanvasSize & {
+export type BallFrame = {
   ballPosition?: BallPosition;
-  boardRows: number;
   impactPosition?: BallPosition;
   impactProgress?: number;
+};
+
+type DrawSceneParams = CanvasSize & {
+  ballFrames?: BallFrame[];
+  boardRows: number;
   rows: number;
 };
 
@@ -94,11 +98,9 @@ function drawImpact(
 export function drawPlinkoScene(
   context: CanvasRenderingContext2D,
   {
-    ballPosition,
+    ballFrames = [],
     boardRows,
     height,
-    impactPosition,
-    impactProgress = 1,
     rows,
     width,
   }: DrawSceneParams,
@@ -117,11 +119,15 @@ export function drawPlinkoScene(
     }
   }
 
-  if (impactPosition && impactProgress < 1) {
-    drawImpact(context, impactPosition, impactProgress);
-  }
+  ballFrames.forEach(({ impactPosition, impactProgress = 1 }) => {
+    if (impactPosition && impactProgress < 1) {
+      drawImpact(context, impactPosition, impactProgress);
+    }
+  });
 
-  if (ballPosition) {
-    drawBall(context, ballPosition);
-  }
+  ballFrames.forEach(({ ballPosition }) => {
+    if (ballPosition) {
+      drawBall(context, ballPosition);
+    }
+  });
 }

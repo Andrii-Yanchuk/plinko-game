@@ -50,12 +50,14 @@ export function GameScreen() {
     queryKey: queryKeys.gameConfig,
   });
 
-  const handleBetPresentationComplete = useCallback((bet: Bet) => {
-    const completedRound = activeRounds.find((round) => round.id === bet.betId);
+  const handleBetPresentationComplete = useCallback((roundId: string) => {
+    const completedRound = activeRounds.find((round) => round.id === roundId);
 
     if (!completedRound) {
       return;
     }
+
+    const { bet } = completedRound;
 
     setActiveRounds((currentRounds) =>
       currentRounds.map((round) =>
@@ -138,10 +140,10 @@ export function GameScreen() {
         soundEnabled={soundEnabled}
       />
       <PlinkoBoard
+        activeRounds={activeRounds}
         isAnimationEnabled={animationsEnabled}
         config={gameConfig}
-        lastBet={lastBet}
-        onBetAnimationComplete={handleBetPresentationComplete}
+        onRoundAnimationComplete={handleBetPresentationComplete}
         onPegImpact={gameSound.playPegHit}
         risk={risk}
         rows={rows}
