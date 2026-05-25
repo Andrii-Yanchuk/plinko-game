@@ -13,6 +13,7 @@ Add a fixed bottom footer navigation that is visible on all authenticated app pa
   - Profile: `/profile`
 - Create minimal `/progress` and `/profile` pages with page titles.
 - Keep `/login` and `/register` free of the footer.
+- Add a reusable `container` class with a maximum width of `900px`.
 - Adjust the game sidebar bottom controls so the fixed footer does not cover them.
 - Preserve the compact dark game UI style.
 
@@ -48,6 +49,8 @@ The footer is fixed to the bottom of the viewport:
 - full browser width
 
 Use a compact height around 64px, a dark translucent background, and a top border consistent with the current sidebar and history styling. The active item should have a stronger text color and subtle background treatment; inactive items should be muted.
+
+The fixed footer background should span the full browser width. Its navigation content should sit inside a reusable `container` class that sets `max-width: 900px`, `width: 100%`, and horizontal centering. This keeps the footer aligned and prevents the navigation from stretching too far on wide screens.
 
 Icons are not required for the initial implementation. Text labels are enough. Icons can be added later as a separate enhancement.
 
