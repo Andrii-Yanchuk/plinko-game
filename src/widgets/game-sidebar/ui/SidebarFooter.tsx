@@ -4,6 +4,7 @@ import { SettingsModal } from "./SettingsModal";
 
 type SidebarFooterProps = {
   animationsEnabled: boolean;
+  isAnimationToggleDisabled: boolean;
   isFullscreen: boolean;
   onAnimationsChange: (enabled: boolean) => void;
   onFullscreenClick: () => void;
@@ -13,6 +14,7 @@ type SidebarFooterProps = {
 
 export function SidebarFooter({
   animationsEnabled,
+  isAnimationToggleDisabled,
   isFullscreen,
   onAnimationsChange,
   onFullscreenClick,
@@ -48,6 +50,7 @@ export function SidebarFooter({
       {isSettingsOpen ? (
         <SettingsModal
           animationsEnabled={animationsEnabled}
+          isAnimationToggleDisabled={isAnimationToggleDisabled}
           onAnimationsChange={onAnimationsChange}
           onClose={closeSettings}
           onSoundChange={onSoundChange}

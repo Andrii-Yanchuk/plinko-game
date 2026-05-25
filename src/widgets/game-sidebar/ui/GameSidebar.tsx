@@ -60,7 +60,9 @@ export function GameSidebar({
     handleBetAmountKeyDown,
     handleBetControlClick,
     handleMainButtonClick,
-    isManualPlaying,
+    isBetAmountDisabled,
+    isManualBetDisabled,
+    isManualRequestPending,
     isSidebarDisabled,
     maxRows,
     minRows,
@@ -92,7 +94,7 @@ export function GameSidebar({
 
       <BetAmountControl
         amount={betAmount}
-        disabled={isSidebarDisabled}
+        disabled={isBetAmountDisabled}
         onAmountChange={setBetAmount}
         onBetControlClick={handleBetControlClick}
         onKeyDown={handleBetAmountKeyDown}
@@ -129,10 +131,13 @@ export function GameSidebar({
       ) : null}
 
       <BetActionButton
+        activeManualRoundCount={activeManualRoundCount}
         autoProgress={autoPlay.progress}
         isAutoPlaying={autoPlay.isPlaying}
         isAutoStopping={autoPlay.isStopping}
-        isManualPlaying={isManualPlaying}
+        isManualBetDisabled={isManualBetDisabled}
+        isManualRequestPending={isManualRequestPending}
+        manualRoundLimit={manualRoundLimit}
         mode={selectedMode}
         onClick={handleMainButtonClick}
       />
@@ -150,6 +155,7 @@ export function GameSidebar({
         onAnimationsChange={onAnimationsChange}
         onFullscreenClick={onFullscreenClick}
         onSoundChange={onSoundChange}
+        isAnimationToggleDisabled={isSidebarDisabled}
         soundEnabled={soundEnabled}
       />
     </aside>

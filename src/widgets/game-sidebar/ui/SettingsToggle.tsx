@@ -3,6 +3,7 @@ import Image from "next/image";
 type SettingsToggleProps = {
   checked: boolean;
   description: string;
+  disabled: boolean;
   iconSrc: string;
   label: string;
   onChange: (checked: boolean) => void;
@@ -11,6 +12,7 @@ type SettingsToggleProps = {
 export function SettingsToggle({
   checked,
   description,
+  disabled,
   iconSrc,
   label,
   onChange,
@@ -30,9 +32,10 @@ export function SettingsToggle({
       <button
         aria-label={label}
         aria-pressed={checked}
-        className={`relative h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ${
+        className={`relative h-5 w-9 shrink-0 rounded-full transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
           checked ? "bg-[#00C950]" : "bg-[#2A2F3E]"
         }`}
+        disabled={disabled}
         onClick={() => onChange(!checked)}
         type="button"
       >

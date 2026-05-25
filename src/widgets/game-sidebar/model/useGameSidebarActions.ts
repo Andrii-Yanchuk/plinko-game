@@ -66,6 +66,11 @@ export function useGameSidebarActions({
   const autoPlay = useAutoPlay({
     placeBet: (payload) => placeBetMutation.placeBet(payload, { mode: "Auto" }),
   });
+  const hasActiveManualRounds = activeManualRoundCount > 0;
+  const isManualRoundLimitReached = activeManualRoundCount >= manualRoundLimit;
+  const isManualRequestPending =
+    selectedMode === "Manual" && placeBetMutation.isPending;
+  const isBetAmountDisabled = placeBetMutation.isPending;
 
   function handleBetAmountKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     if (isBlockedNumberInputKey(event.key)) {
@@ -89,7 +94,11 @@ export function useGameSidebarActions({
   }
 
   async function handleBetClick() {
-    if (selectedMode === "Auto") {
+    if (
+      selectedMode === "Auto" ||
+      placeBetMutation.isPending ||
+      isManualRoundLimitReached
+    ) {
       return;
     }
 
@@ -156,11 +165,10 @@ export function useGameSidebarActions({
     void handleBetClick();
   }
 
-  const isManualRoundLimitReached = activeManualRoundCount >= manualRoundLimit;
-  const isManualPlaying =
-    selectedMode === "Manual" &&
-    (placeBetMutation.isPending || isManualRoundLimitReached);
-  const isSidebarDisabled = placeBetMutation.isPending;
+  const isManualBetDisabled =
+    isManualRequestPending || isManualRoundLimitReached;
+  const isSidebarDisabled =
+    autoPlay.isPlaying || placeBetMutation.isPending || hasActiveManualRounds;
 
   return {
     autoPlay,
@@ -171,7 +179,9 @@ export function useGameSidebarActions({
     handleBetAmountKeyDown,
     handleBetControlClick,
     handleMainButtonClick,
-    isManualPlaying,
+    isBetAmountDisabled,
+    isManualBetDisabled,
+    isManualRequestPending,
     isSidebarDisabled,
     maxRows,
     minRows,

@@ -1,13 +1,16 @@
 import type { GameMode } from "@/entities/game/model/types";
 
 type BetActionButtonProps = {
+  activeManualRoundCount: number;
   autoProgress: {
     current: number;
     total: number;
   };
   isAutoPlaying: boolean;
   isAutoStopping: boolean;
-  isManualPlaying: boolean;
+  isManualBetDisabled: boolean;
+  isManualRequestPending: boolean;
+  manualRoundLimit: number;
   mode: GameMode;
   onClick: () => void;
 };
@@ -22,10 +25,13 @@ function LoadingButtonContent({ children }: { children: string }) {
 }
 
 export function BetActionButton({
+  activeManualRoundCount,
   autoProgress,
   isAutoPlaying,
   isAutoStopping,
-  isManualPlaying,
+  isManualBetDisabled,
+  isManualRequestPending,
+  manualRoundLimit,
   mode,
   onClick,
 }: BetActionButtonProps) {
@@ -36,7 +42,7 @@ export function BetActionButton({
   return (
     <button
       className={className}
-      disabled={isManualPlaying || isAutoStopping}
+      disabled={mode === "Auto" ? isAutoStopping : isManualBetDisabled}
       onClick={onClick}
       type="button"
     >
@@ -49,11 +55,13 @@ export function BetActionButton({
       )
         : mode === "Auto"
           ? "Start Auto"
-          : isManualPlaying
+          : isManualRequestPending
             ? (
                 <LoadingButtonContent>Playing...</LoadingButtonContent>
               )
-            : "Bet"}
+            : activeManualRoundCount > 0
+              ? `Playing... (${activeManualRoundCount}/${manualRoundLimit})`
+              : "Bet"}
     </button>
   );
 }

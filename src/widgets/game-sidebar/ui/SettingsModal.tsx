@@ -4,6 +4,7 @@ import { SettingsToggle } from "./SettingsToggle";
 
 type SettingsModalProps = {
   animationsEnabled: boolean;
+  isAnimationToggleDisabled: boolean;
   onAnimationsChange: (enabled: boolean) => void;
   onClose: () => void;
   onSoundChange: (enabled: boolean) => void;
@@ -12,6 +13,7 @@ type SettingsModalProps = {
 
 export function SettingsModal({
   animationsEnabled,
+  isAnimationToggleDisabled,
   onAnimationsChange,
   onClose,
   onSoundChange,
@@ -21,6 +23,7 @@ export function SettingsModal({
     {
       checked: soundEnabled,
       description: "Play sound effects during gameplay",
+      disabled: false,
       iconSrc: "./sound-icon.svg",
       label: "Sound Effects",
       onChange: onSoundChange,
@@ -28,6 +31,7 @@ export function SettingsModal({
     {
       checked: animationsEnabled,
       description: "Enable smooth ball animations",
+      disabled: isAnimationToggleDisabled,
       iconSrc: "./light-icon.svg",
       label: "Animations",
       onChange: onAnimationsChange,
