@@ -7,6 +7,7 @@ import { getGameConfig } from "@/entities/game/api/gameApi";
 import type { RoundContext } from "@/entities/game/model/types";
 import type { CurrentUser } from "@/entities/user/model/types";
 import { useGameSound } from "@/features/game-sound/model/useGameSound";
+import { useGameNavigationGuardStore } from "@/features/game-navigation-guard/model/useGameNavigationGuardStore";
 import {
   createActiveRound,
   manualRoundLimit,
@@ -46,11 +47,22 @@ export function GameScreen() {
   const setRows = useGameScreenStore((state) => state.setRows);
   const setRisk = useGameScreenStore((state) => state.setRisk);
   const setSoundEnabled = useGameScreenStore((state) => state.setSoundEnabled);
+  const setActiveRoundCount = useGameNavigationGuardStore(
+    (state) => state.setActiveRoundCount,
+  );
   const gameSound = useGameSound(soundEnabled);
   const { data: gameConfig } = useQuery({
     queryFn: getGameConfig,
     queryKey: queryKeys.gameConfig,
   });
+
+  useEffect(() => {
+    setActiveRoundCount(activeRounds.length);
+  }, [activeRounds.length, setActiveRoundCount]);
+
+  useEffect(() => {
+    return () => setActiveRoundCount(0);
+  }, [setActiveRoundCount]);
 
   useEffect(() => {
     const activeRoundIds = new Set(activeRounds.map((round) => round.id));

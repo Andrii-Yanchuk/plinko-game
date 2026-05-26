@@ -3,6 +3,8 @@
 import { History, House, Trophy, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { MouseEvent } from "react";
+import { useGameNavigationGuardStore } from "@/features/game-navigation-guard/model/useGameNavigationGuardStore";
 
 const navItems = [
   { href: "/game", icon: House, label: "Game" },
@@ -13,6 +15,9 @@ const navItems = [
 
 export function AppFooter() {
   const pathname = usePathname();
+  const isGameNavigationBlocked = useGameNavigationGuardStore(
+    (state) => state.activeRoundCount > 0,
+  );
 
   return (
     <footer className="fixed inset-x-0 bottom-0 z-40 border-t border-[#252D3E] bg-[#151A29]/95 px-4 backdrop-blur">
@@ -24,6 +29,11 @@ export function AppFooter() {
           const isActive =
             pathname === item.href || pathname.startsWith(`${item.href}/`);
           const Icon = item.icon;
+          const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+            if (isGameNavigationBlocked && !isActive) {
+              event.preventDefault();
+            }
+          };
 
           return (
             <Link
@@ -36,6 +46,7 @@ export function AppFooter() {
                   : "text-[#8B93A7] hover:text-[#F4F7FB]",
               ].join(" ")}
               href={item.href}
+              onClick={handleClick}
             >
               <Icon className="h-5 w-5 shrink-0" />
               <span className="truncate">{item.label}</span>
