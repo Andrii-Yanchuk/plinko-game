@@ -8,6 +8,7 @@ import type { RoundContext } from "@/entities/game/model/types";
 import type { CurrentUser } from "@/entities/user/model/types";
 import { useGameSound } from "@/features/game-sound/model/useGameSound";
 import { useGameNavigationGuardStore } from "@/features/game-navigation-guard/model/useGameNavigationGuardStore";
+import { AppFooterNav } from "@/widgets/app-footer/ui/AppFooterNav";
 import {
   createActiveRound,
   manualRoundLimit,
@@ -182,6 +183,11 @@ export function GameScreen() {
         risk={risk}
         rows={rows}
       />
+      {isFullscreen ? (
+        <footer className="fixed inset-x-0 bottom-0 z-40 border-t border-[#252D3E] bg-[#151A29]/95 px-4 backdrop-blur">
+          <AppFooterNav />
+        </footer>
+      ) : null}
     </section>
   );
 }
