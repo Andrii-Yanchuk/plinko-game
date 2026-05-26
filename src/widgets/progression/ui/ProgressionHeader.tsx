@@ -3,18 +3,19 @@ import Link from "next/link";
 
 export function ProgressionHeader() {
   return (
-    <header className="flex h-16 min-w-0 items-center gap-2 border-b border-[#222A3B]/80 px-3 sm:gap-4 sm:px-4">
-      <Link
-        className="flex shrink-0 items-center gap-1 rounded-[8px] border border-[#2A2F3E] bg-[#1A1F2E] px-3 py-2 text-sm text-[#D1D5DC] transition-colors hover:bg-[#222A3D] sm:px-4 sm:text-[16px]"
-        href="/game"
-      >
-        <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-        <span className="sm:hidden">Back</span>
-        <span className="hidden sm:inline">Back to Game</span>
-      </Link>
-      <h1 className="min-w-0 truncate text-xl font-bold sm:text-[24px]">
-        Progression
-      </h1>
+    <header className="border-b border-[#222A3B]/80 bg-[#1A1F2EF2]">
+      <div className="mx-auto flex h-16 w-full max-w-3xl min-w-0 items-center gap-3 px-4">
+        <Link
+          aria-label="Back to game"
+          className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-[8px] text-[#D1D5DC] transition-colors hover:bg-[#222A3D]"
+          href="/game"
+        >
+          <ArrowLeft aria-hidden="true" className="h-5 w-5" />
+        </Link>
+        <h1 className="min-w-0 truncate text-xl font-bold sm:text-[24px]">
+          Progression
+        </h1>
+      </div>
     </header>
   );
 }

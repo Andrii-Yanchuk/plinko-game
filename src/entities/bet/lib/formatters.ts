@@ -8,6 +8,12 @@ export function formatCredits(value: string) {
   });
 }
 
+export function formatWholeCredits(value: string) {
+  return (Number(value) / minimalUnitsPerCredit).toLocaleString("en-US", {
+    maximumFractionDigits: 0,
+  });
+}
+
 export function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",

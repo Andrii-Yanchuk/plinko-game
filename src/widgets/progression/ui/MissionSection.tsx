@@ -21,19 +21,26 @@ export function MissionSection({
     return null;
   }
 
-  const SectionIcon = title.toLowerCase().includes("starter") ? Zap : Target;
+  const isStarterSection = title.toLowerCase().includes("starter");
+  const SectionIcon = isStarterSection ? Zap : Target;
 
   return (
-    <section className="flex flex-col gap-3">
-      <h2 className="inline-flex items-center gap-2 px-1 text-lg font-bold">
-        <SectionIcon aria-hidden="true" className="h-4 w-4 text-[#60A5FA]" />
+    <section className="flex flex-col gap-2">
+      <h2 className="inline-flex items-center gap-1.5 px-1 text-sm font-bold">
+        <SectionIcon
+          aria-hidden="true"
+          className={`h-3.5 w-3.5 ${
+            isStarterSection ? "text-[#60A5FA]" : "text-[#00C950]"
+          }`}
+        />
         {title}
       </h2>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2">
         {missions.map((mission) => (
           <MissionCard
             isAnyClaimPending={isAnyClaimPending}
             isClaiming={isMissionClaimPending(mission.id)}
+            isDaily={title.toLowerCase().includes("daily")}
             key={mission.id}
             mission={mission}
             onClaim={onClaimMission}
