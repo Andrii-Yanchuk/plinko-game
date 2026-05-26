@@ -207,7 +207,7 @@ export function GameSidebar({
         <aside
           aria-hidden={!isMobileOpen}
           inert={!isMobileOpen}
-          className={`absolute inset-y-0 left-0 flex w-[86vw] max-w-[360px] flex-col overflow-y-auto border-r border-[#2A2F3E] bg-[#1A1F2E] p-4 pb-0 shadow-2xl transition-transform duration-300 ease-out ${
+          className={`absolute inset-y-0 left-0 flex w-[86vw] max-w-90 flex-col overflow-y-auto border-r border-[#2A2F3E] bg-[#1A1F2E] p-4 pb-0 shadow-2xl transition-transform duration-300 ease-out ${
             isMobileOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >

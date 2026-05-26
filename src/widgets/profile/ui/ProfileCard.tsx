@@ -40,7 +40,7 @@ export function ProfileCard({
     <article className="rounded-xl border border-[#2A2F3E] bg-[#1A1F2E] px-4 py-6 shadow-[0_16px_34px_rgba(0,0,0,0.18)] sm:px-7">
       <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-start">
         <div className="flex min-w-0 gap-4 sm:gap-5">
-          <div className="relative h-[88px] w-[88px] shrink-0">
+          <div className="relative h-22 w-22 shrink-0">
             <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-linear-to-r from-[#00C950] to-[#009966] text-3xl font-bold text-white">
               {profile.avatarUrl ? (
                 <span
@@ -54,7 +54,7 @@ export function ProfileCard({
             </div>
             <button
               aria-label="Upload avatar"
-              className="absolute right-[-4px] bottom-[-4px] flex h-8 w-8 cursor-pointer items-center justify-center rounded-full  bg-[#00C950] text-white transition-colors hover:bg-[#12E064]"
+              className="absolute -right-1 -bottom-1 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full  bg-[#00C950] text-white transition-colors hover:bg-[#12E064]"
               onClick={onAvatarClick}
               type="button"
             >
@@ -152,7 +152,7 @@ export function ProfileCard({
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-[#101725]">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-[#2E7BFF] to-[#B445FF]"
+            className="h-full rounded-full bg-linear-to-r from-[#2E7BFF] to-[#B445FF]"
             style={{ width: `${Math.round(percent)}%` }}
           />
         </div>

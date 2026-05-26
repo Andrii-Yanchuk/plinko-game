@@ -41,7 +41,7 @@ export function MissionCard({
     <article className="rounded-lg border border-[#2B7FFF]/35 bg-[#2B7FFF]/10 p-3 shadow-[0_16px_34px_rgba(0,0,0,0.18)]">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 gap-3">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] border border-[#2B7FFF]/45 bg-[#173B72] text-[#60A5FA]">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#2B7FFF]/45 bg-[#173B72] text-[#60A5FA]">
             <Target aria-hidden="true" className="h-4 w-4" />
           </span>
           <div className="min-w-0">
