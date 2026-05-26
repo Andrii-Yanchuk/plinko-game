@@ -40,6 +40,10 @@ export async function getBetHistory(params: GetBetHistoryParams = {}) {
     searchParams.set("cursor", params.cursor);
   }
 
+  if (params.risk !== undefined) {
+    searchParams.set("risk", params.risk);
+  }
+
   if (params.rows !== undefined) {
     searchParams.set("rows", String(params.rows));
   }

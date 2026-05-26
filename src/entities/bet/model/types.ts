@@ -35,5 +35,6 @@ export type BetHistory = {
 export type GetBetHistoryParams = {
   cursor?: string;
   limit?: number;
+  risk?: Risk;
   rows?: number;
 };

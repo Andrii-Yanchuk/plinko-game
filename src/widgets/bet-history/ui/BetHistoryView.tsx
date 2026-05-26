@@ -2,7 +2,6 @@
 
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useMemo } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import type { BetHistory } from "@/entities/bet/model/types";
 import { getBetHistory } from "@/entities/bet/api/betsApi";
@@ -17,6 +16,7 @@ export function BetHistoryView() {
   const rows = useBetHistoryFiltersStore((state) => state.rows);
   const setRisk = useBetHistoryFiltersStore((state) => state.setRisk);
   const setRows = useBetHistoryFiltersStore((state) => state.setRows);
+  const selectedRisk = risk === "ALL" ? undefined : risk;
   const selectedRows = rows === "ALL" ? undefined : Number(rows);
 
   const {
@@ -34,21 +34,18 @@ export function BetHistoryView() {
       getBetHistory({
         cursor: pageParam as string | undefined,
         limit: betHistoryPageSize,
+        risk: selectedRisk,
         rows: selectedRows,
       }),
-    queryKey: queryKeys.betHistory({ rows: selectedRows }),
+    queryKey: queryKeys.betHistory({ risk: selectedRisk, rows: selectedRows }),
   });
 
-  const visibleItems = useMemo(() => {
-    const items = data?.pages.flatMap((page) => page.items) ?? [];
-
-    return items.filter((item) => risk === "ALL" || item.risk === risk);
-  }, [data, risk]);
+  const visibleItems = data?.pages.flatMap((page) => page.items) ?? [];
 
   return (
-    <main className="min-h-screen bg-[#101725] text-[#F4F7FB]">
+    <main className="min-h-screen bg-[#101725] pb-20 text-[#F4F7FB]">
       <header className="border-b border-[#222A3B]/80 bg-[#1A1F2EF2]">
-        <div className="mx-auto flex h-16 w-full max-w-5xl min-w-0 items-center gap-3 px-4">
+        <div className="mx-auto flex h-12 w-full max-w-5xl min-w-0 items-center gap-2 px-3 sm:h-16 sm:gap-3 sm:px-4">
           <Link
             aria-label="Back to game"
             className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-[8px] text-[#D1D5DC] transition-colors hover:bg-[#222A3D]"
@@ -62,7 +59,7 @@ export function BetHistoryView() {
         </div>
       </header>
 
-      <section className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-6">
+      <section className="mx-auto flex w-full max-w-5xl flex-col gap-3 px-3 py-4 sm:gap-5 sm:px-4 sm:py-6">
         <HistoryFilters
           onRiskChange={setRisk}
           onRowsChange={setRows}
@@ -94,7 +91,7 @@ export function BetHistoryView() {
 
         {hasNextPage ? (
           <button
-            className="self-center rounded-lg border border-[#2A2F3E] bg-[#1A1F2E] px-5 py-2 text-sm font-medium text-[#D1D5DC] transition-colors hover:bg-[#222A3D] disabled:cursor-not-allowed disabled:opacity-60"
+            className="self-center cursor-pointer rounded-lg border border-[#2A2F3E] bg-[#1A1F2E] px-5 py-2 text-sm font-medium text-[#D1D5DC] transition-colors hover:bg-[#222A3D] disabled:cursor-not-allowed disabled:opacity-60"
             disabled={isFetchingNextPage}
             onClick={() => fetchNextPage()}
             type="button"

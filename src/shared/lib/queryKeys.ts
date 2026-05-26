@@ -1,5 +1,6 @@
 export const queryKeys = {
-  betHistory: (params: { rows?: number }) => ["betHistory", params] as const,
+  betHistory: (params: { risk?: string; rows?: number }) =>
+    ["betHistory", params] as const,
   currentUser: ["currentUser"] as const,
   gameConfig: ["gameConfig"] as const,
   profile: ["profile"] as const,
