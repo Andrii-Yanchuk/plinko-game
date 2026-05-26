@@ -77,7 +77,7 @@ export function AvatarUploadModal({
           </div>
           <button
             aria-label="Close upload avatar modal"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[#A7B0C2] transition-colors hover:bg-[#252B3A] hover:text-white"
+            className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-[#A7B0C2] transition-colors hover:bg-[#252B3A] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
             disabled={isPending}
             onClick={onClose}
             type="button"
@@ -116,7 +116,7 @@ export function AvatarUploadModal({
 
         <div className="mt-4 grid grid-cols-2 gap-3">
           <button
-            className="h-10 rounded-lg bg-[#2B3142] text-sm font-medium text-[#F4F7FB] transition-colors hover:bg-[#343B4F] disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-10 cursor-pointer rounded-lg bg-[#2B3142] text-sm font-medium text-[#F4F7FB] transition-colors hover:bg-[#343B4F] disabled:cursor-not-allowed disabled:opacity-60"
             disabled={isPending}
             onClick={onClose}
             type="button"
@@ -124,7 +124,7 @@ export function AvatarUploadModal({
             Cancel
           </button>
           <button
-            className="flex h-10 items-center justify-center gap-2 rounded-lg bg-[#0F7D42] text-sm font-medium text-[#B8F4D0] transition-colors hover:bg-[#11964F] disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#0F7D42] text-sm font-medium text-[#B8F4D0] transition-colors hover:bg-[#11964F] disabled:cursor-not-allowed disabled:opacity-50"
             disabled={!file || isPending}
             onClick={handleUpload}
             type="button"

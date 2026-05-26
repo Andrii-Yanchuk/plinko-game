@@ -41,7 +41,7 @@ export function ProfileCard({
       <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-start">
         <div className="flex min-w-0 gap-4 sm:gap-5">
           <div className="relative h-[88px] w-[88px] shrink-0">
-            <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-[#00C950] text-3xl font-bold text-white">
+            <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-linear-to-r from-[#00C950] to-[#009966] text-3xl font-bold text-white">
               {profile.avatarUrl ? (
                 <span
                   aria-hidden="true"
@@ -54,7 +54,7 @@ export function ProfileCard({
             </div>
             <button
               aria-label="Upload avatar"
-              className="absolute right-[-4px] bottom-[-4px] flex h-8 w-8 items-center justify-center rounded-full border-4 border-[#1A1F2E] bg-[#00C950] text-white transition-colors hover:bg-[#12E064]"
+              className="absolute right-[-4px] bottom-[-4px] flex h-8 w-8 cursor-pointer items-center justify-center rounded-full  bg-[#00C950] text-white transition-colors hover:bg-[#12E064]"
               onClick={onAvatarClick}
               type="button"
             >
@@ -64,7 +64,10 @@ export function ProfileCard({
 
           <div className="min-w-0 pt-1">
             {isEditingNickname ? (
-              <form className="flex flex-wrap gap-2" onSubmit={onNicknameSubmit}>
+              <form
+                className="flex flex-wrap gap-2"
+                onSubmit={onNicknameSubmit}
+              >
                 <input
                   className="h-9 min-w-0 rounded-md border border-[#33405A] bg-[#101725] px-3 text-lg font-bold text-white outline-none focus:border-[#3F89FF]"
                   disabled={isNicknameUpdatePending}
@@ -73,14 +76,14 @@ export function ProfileCard({
                   value={nickname}
                 />
                 <button
-                  className="h-9 rounded-md bg-[#0F7D42] px-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
+                  className="h-9 cursor-pointer rounded-md bg-[#0F7D42] px-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
                   disabled={isNicknameUpdatePending}
                   type="submit"
                 >
                   Save
                 </button>
                 <button
-                  className="h-9 rounded-md bg-[#2B3142] px-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
+                  className="h-9 cursor-pointer rounded-md bg-[#2B3142] px-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
                   disabled={isNicknameUpdatePending}
                   onClick={onCancelNickname}
                   type="button"
@@ -95,7 +98,7 @@ export function ProfileCard({
                 </h2>
                 <button
                   aria-label="Edit nickname"
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[#A7B0C2] transition-colors hover:bg-[#252B3A] hover:text-white"
+                  className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-[#A7B0C2] transition-colors hover:bg-[#252B3A] hover:text-white"
                   onClick={onEditNickname}
                   type="button"
                 >
@@ -139,10 +142,7 @@ export function ProfileCard({
       <div className="mt-8">
         <div className="mb-2 flex items-center justify-between gap-3 text-sm">
           <span className="inline-flex items-center gap-2 font-medium">
-            <TrendingUp
-              aria-hidden="true"
-              className="h-4 w-4 text-[#3F89FF]"
-            />
+            <TrendingUp aria-hidden="true" className="h-4 w-4 text-[#3F89FF]" />
             Level {profile.progression.level} Progress
           </span>
           <span className="shrink-0 text-[#9AA3B5]">

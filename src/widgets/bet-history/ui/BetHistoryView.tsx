@@ -47,15 +47,19 @@ export function BetHistoryView() {
 
   return (
     <main className="min-h-screen bg-[#101725] text-[#F4F7FB]">
-      <header className="flex h-16 items-center gap-4 border-b border-[#222A3B]/80 px-4">
-        <Link
-          className="flex items-center gap-1 rounded-[10px] border border-[#2A2F3E] bg-[#1A1F2E] px-4 py-2 text-[16px] text-[#D1D5DC] transition-colors hover:bg-[#222A3D]"
-          href="/game"
-        >
-          <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          Back to Game
-        </Link>
-        <h1 className="text-[24px] font-bold">Bet History</h1>
+      <header className="border-b border-[#222A3B]/80 bg-[#1A1F2EF2]">
+        <div className="mx-auto flex h-16 w-full max-w-5xl min-w-0 items-center gap-3 px-4">
+          <Link
+            aria-label="Back to game"
+            className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-[8px] text-[#D1D5DC] transition-colors hover:bg-[#222A3D]"
+            href="/game"
+          >
+            <ArrowLeft aria-hidden="true" className="h-5 w-5" />
+          </Link>
+          <h1 className="min-w-0 truncate text-xl font-bold sm:text-[24px]">
+            Bet History
+          </h1>
+        </div>
       </header>
 
       <section className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-6">
