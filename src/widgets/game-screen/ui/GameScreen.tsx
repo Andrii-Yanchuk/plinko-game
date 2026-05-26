@@ -33,6 +33,7 @@ export function GameScreen() {
   } = useFullscreen<HTMLElement>();
   const [lastBet, setLastBet] = useState<Bet | null>(null);
   const [activeRounds, setActiveRounds] = useState<ActiveRound[]>([]);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const animationsEnabled = useGameScreenStore(
     (state) => state.animationsEnabled,
   );
@@ -144,11 +145,14 @@ export function GameScreen() {
         activeManualRoundCount={activeManualRoundCount}
         config={gameConfig}
         isFullscreen={isFullscreen}
+        isMobileOpen={isMobileSidebarOpen}
         lastBet={lastBet}
         manualRoundLimit={manualRoundLimit}
         onAnimationsChange={setAnimationsEnabled}
         onBetPlaced={handleBetPlaced}
         onFullscreenClick={toggleFullscreen}
+        onMobileClose={() => setIsMobileSidebarOpen(false)}
+        onMobileOpen={() => setIsMobileSidebarOpen(true)}
         onRiskChange={setRisk}
         onRowsChange={setRows}
         onSoundChange={setSoundEnabled}
@@ -161,6 +165,7 @@ export function GameScreen() {
         isAnimationEnabled={animationsEnabled}
         config={gameConfig}
         onRoundAnimationComplete={handleBetPresentationComplete}
+        onMobileMenuClick={() => setIsMobileSidebarOpen(true)}
         onPegImpact={gameSound.playPegHit}
         risk={risk}
         rows={rows}

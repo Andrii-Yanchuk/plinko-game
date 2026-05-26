@@ -6,6 +6,7 @@ type BetActionButtonProps = {
     current: number;
     total: number;
   };
+  className?: string;
   isAutoPlaying: boolean;
   isAutoStopping: boolean;
   isManualBetDisabled: boolean;
@@ -27,6 +28,7 @@ function LoadingButtonContent({ children }: { children: string }) {
 export function BetActionButton({
   activeManualRoundCount,
   autoProgress,
+  className = "",
   isAutoPlaying,
   isAutoStopping,
   isManualBetDisabled,
@@ -35,13 +37,13 @@ export function BetActionButton({
   mode,
   onClick,
 }: BetActionButtonProps) {
-  const className = isAutoPlaying
+  const baseClassName = isAutoPlaying
     ? "mt-4 h-11 cursor-pointer rounded-lg bg-[#E7000B] text-[18px] font-bold text-[#F4F7FB] transition-[box-shadow,opacity] hover:opacity-90"
     : "mt-4 h-11 cursor-pointer rounded-lg bg-linear-to-r from-[#00C950] to-[#009966] text-[18px] font-bold text-[#F4F7FB] transition-[box-shadow,opacity] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60";
 
   return (
     <button
-      className={className}
+      className={`${baseClassName} ${className}`}
       disabled={mode === "Auto" ? isAutoStopping : isManualBetDisabled}
       onClick={onClick}
       type="button"
