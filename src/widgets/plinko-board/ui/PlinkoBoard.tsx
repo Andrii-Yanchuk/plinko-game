@@ -119,7 +119,6 @@ export function PlinkoBoard({
           <UserBalance />
         </div>
         <div className="flex items-center gap-3">
-          <HistoryButton />
           <LogoutButton />
         </div>
       </header>
