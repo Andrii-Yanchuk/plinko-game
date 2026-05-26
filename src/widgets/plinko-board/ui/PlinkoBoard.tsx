@@ -2,12 +2,13 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Menu } from "lucide-react";
 import { LogoutButton } from "@/features/auth/logout/ui/LogoutButton";
 import type { GameConfig, Risk } from "@/entities/game/model/types";
+import { useMediaQuery } from "@/shared/lib/useMediaQuery";
 import type { ActiveRound } from "@/widgets/game-screen/model/activeRound";
 import {
+  type BoardLayout,
   getBoardHeight,
   getBucketLayout,
 } from "@/widgets/plinko-board/lib/animation";
-import { getBoardRows } from "@/widgets/plinko-board/lib/board";
 import { getMultiplierTone } from "@/widgets/plinko-board/lib/multiplier";
 import { PlinkoCanvas } from "./PlinkoCanvas";
 import { UserBalance } from "@/entities/user/ui/UserBalance";
@@ -36,7 +37,8 @@ export function PlinkoBoard({
   const completedNoAnimationRoundIdsRef = useRef(new Set<string>());
   const noAnimationTimeoutIdsRef = useRef(new Map<string, number>());
   const multiplierSlots = config?.payoutTables[risk]?.[rows] ?? [];
-  const boardRows = getBoardRows(config, rows);
+  const isMobileBoard = useMediaQuery("(max-width: 767px)");
+  const boardLayout: BoardLayout = isMobileBoard ? "compact" : "regular";
   const visibleBucketIndexes = useMemo(
     () =>
       new Set(
@@ -51,8 +53,8 @@ export function PlinkoBoard({
       ),
     [activeRounds, risk, rows],
   );
-  const { bucketGap, bucketWidth } = getBucketLayout(rows);
-  const boardHeight = getBoardHeight(boardRows);
+  const { bucketGap, bucketWidth } = getBucketLayout(rows, boardLayout);
+  const boardHeight = getBoardHeight(rows, boardLayout);
 
   const clearPendingNoAnimationTimeout = useCallback((roundId: string) => {
     const timeoutId = noAnimationTimeoutIdsRef.current.get(roundId);
@@ -135,13 +137,13 @@ export function PlinkoBoard({
 
       <div className="flex flex-1 flex-col items-center justify-start px-3 pt-6 pb-36 md:px-4 md:pb-0">
         <div
-          className="relative w-full max-w-160"
+          className="relative w-full max-w-160 md:mt-0"
           style={{ height: boardHeight }}
         >
           <PlinkoCanvas
             activeRounds={activeRounds}
-            boardRows={boardRows}
             isAnimationEnabled={isAnimationEnabled}
+            layout={boardLayout}
             onAnimationComplete={onRoundAnimationComplete}
             onPegImpact={onPegImpact}
             rows={rows}
@@ -156,7 +158,7 @@ export function PlinkoBoard({
 
               return (
                 <div
-                  className={`flex h-8 items-center justify-center rounded-lg border px-1 text-[11px] font-bold transition-[transform,box-shadow,background-color,border-color,color] duration-200 ${getMultiplierTone(slot, isActive)}`}
+                  className={`flex h-8 items-center justify-center rounded-lg border px-1 text-[11px] font-bold transition-[transform,box-shadow,background-color,border-color,color] duration-200 max-md:h-7 max-md:rounded-md max-md:px-0 max-md:text-[8px] ${getMultiplierTone(slot, isActive)}`}
                   key={`${slot}-${index}`}
                   style={{ width: bucketWidth }}
                 >

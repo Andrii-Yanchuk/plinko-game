@@ -1,4 +1,6 @@
 import {
+  type BoardLayout,
+  getBallRadius,
   getPegPosition,
   getPegRadius,
   type BallPosition,
@@ -17,7 +19,7 @@ export type BallFrame = {
 
 type DrawSceneParams = CanvasSize & {
   ballFrames?: BallFrame[];
-  boardRows: number;
+  layout?: BoardLayout;
   rows: number;
 };
 
@@ -54,14 +56,18 @@ function drawPeg(
   context.restore();
 }
 
-function drawBall(context: CanvasRenderingContext2D, position: BallPosition) {
+function drawBall(
+  context: CanvasRenderingContext2D,
+  position: BallPosition,
+  radius: number,
+) {
   const gradient = context.createRadialGradient(
-    position.x - 3,
-    position.y - 4,
-    1,
+    position.x - radius * 0.38,
+    position.y - radius * 0.5,
+    Math.max(1, radius * 0.12),
     position.x,
     position.y,
-    9,
+    radius * 1.12,
   );
 
   gradient.addColorStop(0, "#B9FFE1");
@@ -69,11 +75,11 @@ function drawBall(context: CanvasRenderingContext2D, position: BallPosition) {
   gradient.addColorStop(1, "#009B58");
 
   context.save();
-  context.shadowBlur = 18;
+  context.shadowBlur = radius * 2.25;
   context.shadowColor = "rgba(0, 231, 131, 0.75)";
   context.fillStyle = gradient;
   context.beginPath();
-  context.arc(position.x, position.y, 8, 0, Math.PI * 2);
+  context.arc(position.x, position.y, radius, 0, Math.PI * 2);
   context.fill();
   context.restore();
 }
@@ -82,8 +88,9 @@ function drawImpact(
   context: CanvasRenderingContext2D,
   position: BallPosition,
   progress: number,
+  ballRadius: number,
 ) {
-  const radius = 6 + progress * 10;
+  const radius = ballRadius * 0.75 + progress * ballRadius * 1.25;
 
   context.save();
   context.globalAlpha = 1 - progress;
@@ -99,21 +106,22 @@ export function drawPlinkoScene(
   context: CanvasRenderingContext2D,
   {
     ballFrames = [],
-    boardRows,
     height,
+    layout = "regular",
     rows,
     width,
   }: DrawSceneParams,
 ) {
   context.clearRect(0, 0, width, height);
 
-  const pegRadius = getPegRadius(rows, boardRows);
+  const pegRadius = getPegRadius(rows, layout);
+  const ballRadius = getBallRadius(rows, layout);
 
   for (let rowIndex = 0; rowIndex < rows; rowIndex += 1) {
-    for (let pegIndex = 0; pegIndex < rowIndex + 2; pegIndex += 1) {
+    for (let pegIndex = 0; pegIndex < rowIndex + 3; pegIndex += 1) {
       drawPeg(
         context,
-        getPegPosition(rowIndex, pegIndex, rows, boardRows),
+        getPegPosition(rowIndex, pegIndex, rows, layout),
         pegRadius,
       );
     }
@@ -121,13 +129,13 @@ export function drawPlinkoScene(
 
   ballFrames.forEach(({ impactPosition, impactProgress = 1 }) => {
     if (impactPosition && impactProgress < 1) {
-      drawImpact(context, impactPosition, impactProgress);
+      drawImpact(context, impactPosition, impactProgress, ballRadius);
     }
   });
 
   ballFrames.forEach(({ ballPosition }) => {
     if (ballPosition) {
-      drawBall(context, ballPosition);
+      drawBall(context, ballPosition, ballRadius);
     }
   });
 }
