@@ -37,8 +37,13 @@ export function PlinkoBoard({
   const completedNoAnimationRoundIdsRef = useRef(new Set<string>());
   const noAnimationTimeoutIdsRef = useRef(new Map<string, number>());
   const multiplierSlots = config?.payoutTables[risk]?.[rows] ?? [];
-  const isMobileBoard = useMediaQuery("(max-width: 767px)");
-  const boardLayout: BoardLayout = isMobileBoard ? "compact" : "regular";
+  const isPhoneBoard = useMediaQuery("(max-width: 767px)");
+  const isTabletBoard = useMediaQuery("(max-width: 1023px)");
+  const boardLayout: BoardLayout = isPhoneBoard
+    ? "compact"
+    : isTabletBoard
+      ? "tablet"
+      : "regular";
   const visibleBucketIndexes = useMemo(
     () =>
       new Set(

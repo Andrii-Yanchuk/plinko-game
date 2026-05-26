@@ -7,35 +7,42 @@ export type BallPosition = {
   y: number;
 };
 
-export type BoardLayout = "regular" | "compact";
+export type BoardLayout = "regular" | "tablet" | "compact";
 
 const boardWidthByLayout: Record<BoardLayout, number> = {
   compact: 360,
   regular: 640,
+  tablet: 460,
 };
 const rowStartYByLayout: Record<BoardLayout, number> = {
   compact: 20,
   regular: 24,
+  tablet: 22,
 };
 const pyramidHeightByLayout: Record<BoardLayout, number> = {
   compact: 190,
   regular: 460,
+  tablet: 260,
 };
 const pyramidWidthByLayout: Record<BoardLayout, number> = {
   compact: 340,
   regular: 540,
+  tablet: 430,
 };
 const bucketOffsetByLayout: Record<BoardLayout, number> = {
   compact: 16,
   regular: 18,
+  tablet: 17,
 };
 const boardBottomPaddingByLayout: Record<BoardLayout, number> = {
   compact: 46,
   regular: 52,
+  tablet: 48,
 };
 const bucketGapByLayout: Record<BoardLayout, number> = {
   compact: 2,
   regular: 6,
+  tablet: 4,
 };
 const minRowsForPegScale = 8;
 const maxRowsForPegScale = 16;
@@ -50,6 +57,10 @@ const pegRadiusByLayout: Record<
   regular: {
     maxRowsRadius: 3,
     minRowsRadius: 5,
+  },
+  tablet: {
+    maxRowsRadius: 2.8,
+    minRowsRadius: 4.5,
   },
 };
 
