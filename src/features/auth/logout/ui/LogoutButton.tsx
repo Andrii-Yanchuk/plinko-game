@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { logout } from "@/features/auth/api/authApi";
@@ -26,7 +26,7 @@ export function LogoutButton() {
       onClick={handleLogout}
       type="button"
     >
-      <Image src="./logout-icon.svg" alt="" width={16} height={16} />
+      <LogOut aria-hidden="true" className="h-4 w-4" />
       {isLoading ? "Signing out..." : "Logout"}
     </button>
   );

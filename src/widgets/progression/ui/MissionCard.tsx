@@ -1,3 +1,4 @@
+import { Clock, Target } from "lucide-react";
 import type { ProgressionMission } from "@/entities/progression/model/types";
 import { formatCredits } from "@/entities/bet/lib/formatters";
 import {
@@ -32,13 +33,19 @@ export function MissionCard({
   return (
     <article className="rounded-lg border border-[#2E7BFF]/35 bg-[#142A4A] p-4 shadow-[0_16px_34px_rgba(0,0,0,0.18)]">
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="truncate text-base font-bold">{mission.title}</h3>
-          <p className="mt-1 text-sm leading-5 text-[#B8C1D1]">
-            {mission.description}
-          </p>
+        <div className="flex min-w-0 gap-3">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#2E7BFF]/45 bg-[#1E3A66] text-[#60A5FA]">
+            <Target aria-hidden="true" className="h-4 w-4" />
+          </span>
+          <div className="min-w-0">
+            <h3 className="truncate text-base font-bold">{mission.title}</h3>
+            <p className="mt-1 text-sm leading-5 text-[#B8C1D1]">
+              {mission.description}
+            </p>
+          </div>
         </div>
-        <div className="shrink-0 rounded-md bg-[#101725]/70 px-2 py-1 text-xs font-medium text-[#8D96A8]">
+        <div className="inline-flex shrink-0 items-center gap-1 rounded-md bg-[#101725]/70 px-2 py-1 text-xs font-medium text-[#8D96A8]">
+          <Clock aria-hidden="true" className="h-3.5 w-3.5" />
           {getMissionTimeLabel(mission)}
         </div>
       </div>

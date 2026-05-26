@@ -1,3 +1,4 @@
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export function ProfileHeader() {
@@ -8,20 +9,7 @@ export function ProfileHeader() {
         className="flex h-9 w-9 items-center justify-center rounded-md text-[#C8D0DF] transition-colors hover:bg-[#252B3A] hover:text-white"
         href="/game"
       >
-        <svg
-          aria-hidden="true"
-          className="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M15 5.5 8.5 12l6.5 6.5M9 12h10"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="1.8"
-          />
-        </svg>
+        <ArrowLeft aria-hidden="true" className="h-5 w-5" />
       </Link>
       <h1 className="text-xl font-bold">Profile</h1>
     </header>

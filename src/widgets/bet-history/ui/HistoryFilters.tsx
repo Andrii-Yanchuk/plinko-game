@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Funnel } from "lucide-react";
 import type { Risk } from "@/entities/game/model/types";
 import { riskOptions, rowOptions } from "@/widgets/bet-history/model/constants";
 
@@ -18,7 +18,7 @@ export function HistoryFilters({
   return (
     <div className="flex flex-wrap items-center gap-4 rounded-lg border border-[#2A2F3E] bg-[#1A1F2E] p-4 text-xs text-[#8D96A8]">
       <span className="flex items-center gap-2 text-sm font-medium text-[#D1D5DC]">
-        <Image src="/filter-icon.svg" alt="Filter icon" width={16} height={16} />
+        <Funnel aria-hidden="true" className="h-4 w-4 text-[#99A1AF]" />
         Filters:
       </span>
 

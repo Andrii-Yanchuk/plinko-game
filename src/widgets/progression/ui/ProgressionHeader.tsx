@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export function ProgressionHeader() {
@@ -8,7 +8,7 @@ export function ProgressionHeader() {
         className="flex shrink-0 items-center gap-1 rounded-[8px] border border-[#2A2F3E] bg-[#1A1F2E] px-3 py-2 text-sm text-[#D1D5DC] transition-colors hover:bg-[#222A3D] sm:px-4 sm:text-[16px]"
         href="/game"
       >
-        <Image src="/back-icon.svg" alt="" width={16} height={16} />
+        <ArrowLeft aria-hidden="true" className="h-4 w-4" />
         <span className="sm:hidden">Back</span>
         <span className="hidden sm:inline">Back to Game</span>
       </Link>

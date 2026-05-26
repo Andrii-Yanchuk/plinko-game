@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, Upload, X } from "lucide-react";
 import { useId, useRef, useState, type DragEvent } from "react";
 
 const maxAvatarSize = 5 * 1024 * 1024;
@@ -81,19 +82,7 @@ export function AvatarUploadModal({
             onClick={onClose}
             type="button"
           >
-            <svg
-              aria-hidden="true"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="m6.5 6.5 11 11M17.5 6.5l-11 11"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeWidth="1.8"
-              />
-            </svg>
+            <X aria-hidden="true" className="h-5 w-5" />
           </button>
         </div>
 
@@ -103,20 +92,7 @@ export function AvatarUploadModal({
           onDragOver={(event) => event.preventDefault()}
           onDrop={handleDrop}
         >
-          <svg
-            aria-hidden="true"
-            className="h-12 w-12 text-[#9CA5B8]"
-            fill="none"
-            viewBox="0 0 48 48"
-          >
-            <path
-              d="M16 25v7a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4v-7M24 31V12m0 0-8 8m8-8 8 8"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="3"
-            />
-          </svg>
+          <Upload aria-hidden="true" className="h-12 w-12 text-[#9CA5B8]" />
           <span className="mt-4 text-sm text-[#F4F7FB]">
             {file ? file.name : "Drop an image here or click to browse"}
           </span>
@@ -153,20 +129,7 @@ export function AvatarUploadModal({
             onClick={handleUpload}
             type="button"
           >
-            <svg
-              aria-hidden="true"
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="m5.5 12.5 4.25 4.25 8.75-9.5"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-              />
-            </svg>
+            <Check aria-hidden="true" className="h-4 w-4" />
             {isPending ? "Uploading..." : "Upload"}
           </button>
         </div>

@@ -1,3 +1,4 @@
+import { Camera, Flame, Pencil, TrendingUp, Trophy } from "lucide-react";
 import type { FormEvent } from "react";
 import {
   formatProfileBalance,
@@ -57,24 +58,7 @@ export function ProfileCard({
               onClick={onAvatarClick}
               type="button"
             >
-              <svg
-                aria-hidden="true"
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M8.5 7.5 10 5.75h4l1.5 1.75H18a2 2 0 0 1 2 2v6.75a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9.5a2 2 0 0 1 2-2h2.5Z"
-                  stroke="currentColor"
-                  strokeLinejoin="round"
-                  strokeWidth="1.8"
-                />
-                <path
-                  d="M12 15.5a2.75 2.75 0 1 0 0-5.5 2.75 2.75 0 0 0 0 5.5Z"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                />
-              </svg>
+              <Camera aria-hidden="true" className="h-4 w-4" />
             </button>
           </div>
 
@@ -115,20 +99,7 @@ export function ProfileCard({
                   onClick={onEditNickname}
                   type="button"
                 >
-                  <svg
-                    aria-hidden="true"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="m4.75 16.75-.75 3.25 3.25-.75 10.5-10.5-2.5-2.5-10.5 10.5ZM14.25 7.25l2.5 2.5"
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="1.8"
-                    />
-                  </svg>
+                  <Pencil aria-hidden="true" className="h-5 w-5" />
                 </button>
               </div>
             )}
@@ -143,42 +114,11 @@ export function ProfileCard({
 
             <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium">
               <span className="inline-flex items-center gap-2">
-                <svg
-                  aria-hidden="true"
-                  className="h-4 w-4 text-[#FFD230]"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M8 4.75h8v3.5c0 2.75-1.8 5-4 5s-4-2.25-4-5v-3.5Z"
-                    stroke="currentColor"
-                    strokeLinejoin="round"
-                    strokeWidth="1.8"
-                  />
-                  <path
-                    d="M8 7H5.25a2.25 2.25 0 0 0 2.25 3.5H8M16 7h2.75a2.25 2.25 0 0 1-2.25 3.5H16M12 13.25v3.25M8.75 20h6.5M10 16.5h4"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="1.8"
-                  />
-                </svg>
+                <Trophy aria-hidden="true" className="h-4 w-4 text-[#FFD230]" />
                 Level {profile.progression.level}
               </span>
               <span className="inline-flex items-center gap-2">
-                <svg
-                  aria-hidden="true"
-                  className="h-4 w-4 text-[#FF6900]"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M12 21c3.25 0 6-2.35 6-5.95 0-2.35-1.15-4.25-2.65-5.65-.3 1.4-1.15 2.35-2.1 2.8.25-2.9-1.35-5.15-3.85-6.9.2 3.25-3.4 5.25-3.4 9.65C6 18.65 8.75 21 12 21Z"
-                    stroke="currentColor"
-                    strokeLinejoin="round"
-                    strokeWidth="1.8"
-                  />
-                </svg>
+                <Flame aria-hidden="true" className="h-4 w-4 text-[#FF6900]" />
                 {profile.progression.dailyStreak} day streak
               </span>
             </div>
@@ -199,20 +139,10 @@ export function ProfileCard({
       <div className="mt-8">
         <div className="mb-2 flex items-center justify-between gap-3 text-sm">
           <span className="inline-flex items-center gap-2 font-medium">
-            <svg
+            <TrendingUp
               aria-hidden="true"
               className="h-4 w-4 text-[#3F89FF]"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="m4 16 5-5 4 4 7-8M16 7h4v4"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.8"
-              />
-            </svg>
+            />
             Level {profile.progression.level} Progress
           </span>
           <span className="shrink-0 text-[#9AA3B5]">

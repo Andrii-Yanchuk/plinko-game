@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -52,7 +52,7 @@ export function BetHistoryView() {
           className="flex items-center gap-1 rounded-[10px] border border-[#2A2F3E] bg-[#1A1F2E] px-4 py-2 text-[16px] text-[#D1D5DC] transition-colors hover:bg-[#222A3D]"
           href="/game"
         >
-          <Image src="/back-icon.svg" alt="Back icon" width={16} height={16} />
+          <ArrowLeft aria-hidden="true" className="h-4 w-4" />
           Back to Game
         </Link>
         <h1 className="text-[24px] font-bold">Bet History</h1>

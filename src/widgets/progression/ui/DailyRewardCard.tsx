@@ -1,3 +1,4 @@
+import { Flame, Gift } from "lucide-react";
 import type { Progression } from "@/entities/progression/model/types";
 import { formatCredits } from "@/entities/bet/lib/formatters";
 import { RewardPill } from "./RewardPill";
@@ -25,10 +26,14 @@ export function DailyRewardCard({
     <article className="rounded-lg border border-[#F59E0B]/40 bg-[#2A1B10] p-4 shadow-[0_16px_34px_rgba(0,0,0,0.18)]">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase text-[#FDBA74]">
+          <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase text-[#FDBA74]">
+            <Gift aria-hidden="true" className="h-4 w-4" />
             Daily Reward
           </p>
-          <h2 className="text-xl font-bold">Streak {daily.streak}</h2>
+          <h2 className="mt-1 inline-flex items-center gap-2 text-xl font-bold">
+            <Flame aria-hidden="true" className="h-5 w-5 text-[#F97316]" />
+            Streak {daily.streak}
+          </h2>
         </div>
         <button
           className="rounded-lg bg-[#F59E0B] px-4 py-2 text-sm font-bold text-[#101725] transition-colors hover:bg-[#FBBF24] disabled:cursor-not-allowed disabled:opacity-60"

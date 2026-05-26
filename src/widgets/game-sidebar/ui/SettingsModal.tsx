@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Volume2, X, Zap } from "lucide-react";
 import { useEffect } from "react";
 import { SettingsToggle } from "./SettingsToggle";
 
@@ -24,7 +24,7 @@ export function SettingsModal({
       checked: soundEnabled,
       description: "Play sound effects during gameplay",
       disabled: false,
-      iconSrc: "./sound-icon.svg",
+      icon: Volume2,
       label: "Sound Effects",
       onChange: onSoundChange,
     },
@@ -32,7 +32,7 @@ export function SettingsModal({
       checked: animationsEnabled,
       description: "Enable smooth ball animations",
       disabled: isAnimationToggleDisabled,
-      iconSrc: "./light-icon.svg",
+      icon: Zap,
       label: "Animations",
       onChange: onAnimationsChange,
     },
@@ -77,7 +77,7 @@ export function SettingsModal({
             onClick={onClose}
             type="button"
           >
-            <Image src="./close-icon.svg" alt="" width={16} height={16} />
+            <X aria-hidden="true" className="h-4 w-4 text-white" />
           </button>
         </div>
 

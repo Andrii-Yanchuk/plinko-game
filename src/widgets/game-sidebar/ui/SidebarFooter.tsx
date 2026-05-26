@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Maximize2, Settings } from "lucide-react";
 import { useCallback, useState } from "react";
 import { SettingsModal } from "./SettingsModal";
 
@@ -34,7 +34,7 @@ export function SidebarFooter({
           onClick={onFullscreenClick}
           type="button"
         >
-          <Image src="./all-display-icon.svg" alt="" width={20} height={20} />
+          <Maximize2 aria-hidden="true" className="h-5 w-5 text-[#99A1AF]" />
         </button>
         <button
           aria-label="Settings"
@@ -43,7 +43,7 @@ export function SidebarFooter({
           onClick={() => setIsSettingsOpen(true)}
           type="button"
         >
-          <Image src="./setings-icon.svg" alt="" width={20} height={20} />
+          <Settings aria-hidden="true" className="h-5 w-5 text-[#99A1AF]" />
         </button>
       </div>
 

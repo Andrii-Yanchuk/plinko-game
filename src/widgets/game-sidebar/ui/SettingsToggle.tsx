@@ -1,10 +1,10 @@
-import Image from "next/image";
+import type { LucideIcon } from "lucide-react";
 
 type SettingsToggleProps = {
   checked: boolean;
   description: string;
   disabled: boolean;
-  iconSrc: string;
+  icon: LucideIcon;
   label: string;
   onChange: (checked: boolean) => void;
 };
@@ -13,14 +13,14 @@ export function SettingsToggle({
   checked,
   description,
   disabled,
-  iconSrc,
+  icon: Icon,
   label,
   onChange,
 }: SettingsToggleProps) {
   return (
     <div className="flex items-center justify-between gap-5">
       <div className="flex min-w-0 items-center gap-3">
-        <Image src={iconSrc} alt="" width={20} height={20} />
+        <Icon aria-hidden="true" className="h-5 w-5 shrink-0 text-[#00C950]" />
         <div className="min-w-0">
           <div className="text-sm font-medium text-[#F4F7FB]">{label}</div>
           <div className="mt-0.5 text-xs leading-5 text-[#8B94A7]">

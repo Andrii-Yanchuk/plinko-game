@@ -1,3 +1,4 @@
+import { Target, Zap } from "lucide-react";
 import type { ProgressionMission } from "@/entities/progression/model/types";
 import { MissionCard } from "./MissionCard";
 
@@ -20,9 +21,14 @@ export function MissionSection({
     return null;
   }
 
+  const SectionIcon = title.toLowerCase().includes("starter") ? Zap : Target;
+
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="px-1 text-lg font-bold">{title}</h2>
+      <h2 className="inline-flex items-center gap-2 px-1 text-lg font-bold">
+        <SectionIcon aria-hidden="true" className="h-4 w-4 text-[#60A5FA]" />
+        {title}
+      </h2>
       <div className="flex flex-col gap-3">
         {missions.map((mission) => (
           <MissionCard

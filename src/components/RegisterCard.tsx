@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { CircleDot } from "lucide-react";
 import Link from "next/link";
 import { type SyntheticEvent, useState } from "react";
 import { useRegister } from "@/features/auth/register/model/useRegister";
@@ -20,12 +20,7 @@ export function RegisterCard() {
       <section className="flex w-md max-w-[calc(100vw-32px)] flex-col rounded-2xl border border-[#2A2F3E] bg-[#1A1F2E]/80 p-8 text-[#F4F7FB] shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
         <div className="flex flex-col items-center justify-center">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-r from-[#00C950] to-[#009966]">
-            <Image
-              src="./plinko-icon.svg"
-              alt="Plinko Logo"
-              width={32}
-              height={32}
-            />
+            <CircleDot aria-hidden="true" className="h-8 w-8 text-white" />
           </div>
           <h1 className="mb-2 text-3xl font-bold">Plinko</h1>
           <p className="text-[16px] font-medium text-[#99A1AF]">
