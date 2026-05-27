@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import {
@@ -22,10 +23,10 @@ export function useProfileView() {
     queryKey: queryKeys.currentUser,
   });
 
-  const handleProfileSuccess = (profile: PlayerProfile) => {
+  const handleProfileSuccess = useCallback((profile: PlayerProfile) => {
     queryClient.setQueryData(queryKeys.profile, profile);
     void queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
-  };
+  }, [queryClient]);
 
   const nicknameMutation = useMutation<PlayerProfile, Error, string>({
     mutationFn: (nickname) => updateProfile({ nickname }),
@@ -54,7 +55,7 @@ export function useProfileView() {
     nicknameErrorMessage: nicknameMutation.error?.message,
     profile: profileQuery.data,
     profileErrorMessage: profileQuery.error?.message,
-    updateNickname: (nickname: string) => nicknameMutation.mutateAsync(nickname),
-    uploadAvatar: (image: File) => avatarMutation.mutateAsync(image),
+    updateNickname: nicknameMutation.mutateAsync,
+    uploadAvatar: avatarMutation.mutateAsync,
   };
 }

@@ -1,10 +1,12 @@
+import { memo } from "react";
+
 type ProfileStatCardProps = {
   label: string;
   value: string;
   valueClassName?: string;
 };
 
-export function ProfileStatCard({
+export const ProfileStatCard = memo(function ProfileStatCard({
   label,
   value,
   valueClassName = "text-3xl font-bold",
@@ -15,4 +17,4 @@ export function ProfileStatCard({
       <p className={`mt-2 text-[#F4F7FB] ${valueClassName}`}>{value}</p>
     </article>
   );
-}
+});

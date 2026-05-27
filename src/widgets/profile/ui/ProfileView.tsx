@@ -1,12 +1,11 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { formatMemberSince } from "@/entities/profile/lib/profile";
+import { useCallback, useState } from "react";
 import { useProfileView } from "@/widgets/profile/model/useProfileView";
 import { AvatarUploadModal } from "./AvatarUploadModal";
 import { ProfileCard } from "./ProfileCard";
 import { ProfileHeader } from "./ProfileHeader";
-import { ProfileStatCard } from "./ProfileStatCard";
+import { ProfileStats } from "./ProfileStats";
 
 export function ProfileView() {
   const {
@@ -23,23 +22,12 @@ export function ProfileView() {
     uploadAvatar,
   } = useProfileView();
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
-  const [isEditingNickname, setIsEditingNickname] = useState(false);
-  const [nickname, setNickname] = useState("");
-
-  const handleNicknameSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const nextNickname = nickname.trim();
-
-    if (!nextNickname || !profile || nextNickname === profile.nickname) {
-      setIsEditingNickname(false);
-      setNickname(profile?.nickname ?? "");
-      return;
-    }
-
-    await updateNickname(nextNickname);
-    setIsEditingNickname(false);
-  };
+  const handleAvatarModalOpen = useCallback(() => {
+    setIsAvatarModalOpen(true);
+  }, []);
+  const handleAvatarModalClose = useCallback(() => {
+    setIsAvatarModalOpen(false);
+  }, []);
 
   return (
     <main className="min-h-screen bg-[#101725] pb-20 text-[#F4F7FB]">
@@ -59,35 +47,17 @@ export function ProfileView() {
         ) : profile ? (
           <>
             <ProfileCard
-              isEditingNickname={isEditingNickname}
               isNicknameUpdatePending={isNicknameUpdatePending}
-              nickname={nickname}
               nicknameErrorMessage={nicknameErrorMessage}
-              onAvatarClick={() => setIsAvatarModalOpen(true)}
-              onCancelNickname={() => {
-                setNickname(profile.nickname);
-                setIsEditingNickname(false);
-              }}
-              onEditNickname={() => {
-                setNickname(profile.nickname);
-                setIsEditingNickname(true);
-              }}
-              onNicknameChange={setNickname}
-              onNicknameSubmit={handleNicknameSubmit}
+              onAvatarClick={handleAvatarModalOpen}
               profile={profile}
+              updateNickname={updateNickname}
             />
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <ProfileStatCard
-                label="Total XP"
-                value={profile.progression.xp.toLocaleString("en-US")}
-              />
-              <ProfileStatCard
-                label="Member Since"
-                value={formatMemberSince(currentUser?.createdAt)}
-                valueClassName="text-base font-medium"
-              />
-            </div>
+            <ProfileStats
+              createdAt={currentUser?.createdAt}
+              xp={profile.progression.xp}
+            />
           </>
         ) : null}
       </section>
@@ -96,7 +66,7 @@ export function ProfileView() {
         <AvatarUploadModal
           errorMessage={avatarErrorMessage}
           isPending={isAvatarUploadPending}
-          onClose={() => setIsAvatarModalOpen(false)}
+          onClose={handleAvatarModalClose}
           onUpload={uploadAvatar}
         />
       ) : null}
