@@ -24,7 +24,7 @@ export function ProgressionView() {
     <main className="min-h-screen bg-[#101725] pb-16 text-[#F4F7FB]">
       <ProgressionHeader />
 
-      <section className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-6">
+      <section className="container flex flex-col gap-4 px-4 py-6">
         {isError && errorMessage ? (
           <p className="rounded-lg border border-[#FB2C36]/50 bg-[#FB2C36]/10 px-4 py-3 text-sm text-[#FDA4AF]">
             {errorMessage}

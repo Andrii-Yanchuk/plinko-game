@@ -45,7 +45,7 @@ export function ProfileView() {
     <main className="min-h-screen bg-[#101725] pb-20 text-[#F4F7FB]">
       <ProfileHeader />
 
-      <section className="mx-auto flex w-full max-w-247.5 flex-col gap-4 px-4 py-7">
+      <section className="container flex flex-col gap-4 px-4 py-7">
         {isError && profileErrorMessage ? (
           <p className="rounded-lg border border-[#FB2C36]/50 bg-[#FB2C36]/10 px-4 py-3 text-sm text-[#FDA4AF]">
             {profileErrorMessage}

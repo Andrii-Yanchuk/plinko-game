@@ -45,7 +45,7 @@ export function BetHistoryView() {
   return (
     <main className="min-h-screen bg-[#101725] pb-20 text-[#F4F7FB]">
       <header className="border-b border-[#222A3B]/80 bg-[#1A1F2EF2]">
-        <div className="mx-auto flex h-12 w-full max-w-5xl min-w-0 items-center gap-2 px-3 sm:h-16 sm:gap-3 sm:px-4">
+        <div className="container flex h-12 min-w-0 items-center gap-2 px-3 sm:h-16 sm:gap-3 sm:px-4">
           <Link
             aria-label="Back to game"
             className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-[8px] text-[#D1D5DC] transition-colors hover:bg-[#222A3D]"
@@ -59,7 +59,7 @@ export function BetHistoryView() {
         </div>
       </header>
 
-      <section className="mx-auto flex w-full max-w-5xl flex-col gap-3 px-3 py-4 sm:gap-5 sm:px-4 sm:py-6">
+      <section className="container flex flex-col gap-3 px-3 py-4 sm:gap-5 sm:px-4 sm:py-6">
         <HistoryFilters
           onRiskChange={setRisk}
           onRowsChange={setRows}

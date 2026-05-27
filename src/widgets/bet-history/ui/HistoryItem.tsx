@@ -1,10 +1,7 @@
 import type { Bet } from "@/entities/bet/model/types";
 import type { ReactNode } from "react";
 import { formatDate, formatProfit, getProfit } from "@/entities/bet/lib/formatters";
-import {
-  getMultiplierTextTone,
-  multiplierColor,
-} from "@/widgets/plinko-board/lib/multiplier";
+import { getMultiplierTextTone } from "@/widgets/plinko-board/lib/multiplier";
 import { CreditAmount } from "./CreditAmount";
 import { RiskBadge } from "./RiskBadge";
 
@@ -16,11 +13,23 @@ type HistoryFieldProps = {
   label: string;
   children: ReactNode;
   alignEnd?: boolean;
+  alignCenter?: boolean;
 };
 
-function HistoryField({ label, children, alignEnd }: HistoryFieldProps) {
+function HistoryField({
+  label,
+  children,
+  alignCenter,
+  alignEnd,
+}: HistoryFieldProps) {
+  const className = alignEnd
+    ? "flex flex-col items-end"
+    : alignCenter
+      ? "flex flex-col items-center"
+      : undefined;
+
   return (
-    <div className={alignEnd ? "flex flex-col md:items-end" : undefined}>
+    <div className={className}>
       <div className="text-[11px] leading-4 text-[#6F788B] md:text-[12px]">
         {label}
       </div>
@@ -32,7 +41,7 @@ function HistoryField({ label, children, alignEnd }: HistoryFieldProps) {
 export function HistoryItem({ bet }: HistoryItemProps) {
   const profit = getProfit(bet);
   const profitClassName = profit >= 0 ? "text-[#00E783]" : "text-[#FB2C36]";
-  const multiplierClassName = `inline-flex rounded border bg-transparent px-2 py-0.5 text-[18px] font-bold ${multiplierColor(Number(bet.multiplier))} ${getMultiplierTextTone(bet.multiplier)}`;
+  const multiplierClassName = `text-[18px] font-bold leading-5 ${getMultiplierTextTone(bet.multiplier)}`;
 
   return (
     <article className="rounded-lg border border-[#2A2F3E] bg-[#1A1F2E] p-3 text-xs text-[#D1D5DC] sm:p-4">
@@ -65,7 +74,7 @@ export function HistoryItem({ bet }: HistoryItemProps) {
             <CreditAmount value={bet.amount} />
           </HistoryField>
 
-          <HistoryField label="Payout">
+          <HistoryField alignCenter label="Payout">
             <CreditAmount value={bet.payout} />
           </HistoryField>
 
@@ -75,7 +84,7 @@ export function HistoryItem({ bet }: HistoryItemProps) {
         </div>
       </div>
 
-      <div className="hidden gap-4 md:grid md:grid-cols-[1.2fr_1fr_0.8fr_0.8fr_0.8fr_0.8fr_1fr] md:items-center">
+      <div className="hidden md:grid md:grid-cols-[max-content_max-content_max-content_max-content_max-content_max-content_1fr] md:items-center md:gap-8">
         <HistoryField label="Time">
           <div className="text-sm">{formatDate(bet.createdAt)}</div>
         </HistoryField>
