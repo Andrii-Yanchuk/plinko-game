@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 import {
   getProfile,
   updateProfile,
@@ -28,11 +29,19 @@ export function useProfileView() {
 
   const nicknameMutation = useMutation<PlayerProfile, Error, string>({
     mutationFn: (nickname) => updateProfile({ nickname }),
-    onSuccess: handleProfileSuccess,
+    onError: (error) => toast.error(error.message),
+    onSuccess: (profile) => {
+      handleProfileSuccess(profile);
+      toast.success("Nickname updated");
+    },
   });
   const avatarMutation = useMutation<PlayerProfile, Error, File>({
     mutationFn: uploadProfileAvatar,
-    onSuccess: handleProfileSuccess,
+    onError: (error) => toast.error(error.message),
+    onSuccess: (profile) => {
+      handleProfileSuccess(profile);
+      toast.success("Profile photo updated");
+    },
   });
 
   return {
