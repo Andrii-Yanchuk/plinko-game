@@ -1,14 +1,9 @@
-import { AppFooter } from "@/widgets/app-footer/ui/AppFooter";
+import { MainFullscreenShell } from "./MainFullscreenShell";
 
 export default function MainLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <>
-      {children}
-      <AppFooter />
-    </>
-  );
+  return <MainFullscreenShell>{children}</MainFullscreenShell>;
 }

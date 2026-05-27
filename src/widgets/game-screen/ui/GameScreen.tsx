@@ -8,7 +8,6 @@ import type { RoundContext } from "@/entities/game/model/types";
 import type { CurrentUser } from "@/entities/user/model/types";
 import { useGameSound } from "@/features/game-sound/model/useGameSound";
 import { useGameNavigationGuardStore } from "@/features/game-navigation-guard/model/useGameNavigationGuardStore";
-import { AppFooterNav } from "@/widgets/app-footer/ui/AppFooterNav";
 import {
   createActiveRound,
   manualRoundLimit,
@@ -17,8 +16,8 @@ import {
 import { GameSidebar } from "@/widgets/game-sidebar/ui/GameSidebar";
 import { PlinkoBoard } from "@/widgets/plinko-board/ui/PlinkoBoard";
 import { delay } from "@/shared/lib/delay";
+import { useMainFullscreen } from "@/shared/lib/fullscreenContext";
 import { queryKeys } from "@/shared/lib/queryKeys";
-import { useFullscreen } from "@/shared/lib/useFullscreen";
 import { useGameScreenStore } from "@/widgets/game-screen/model/useGameScreenStore";
 
 export function GameScreen() {
@@ -28,11 +27,7 @@ export function GameScreen() {
     resolve: () => void;
   } | null>(null);
   const completedPresentationRoundIdsRef = useRef(new Set<string>());
-  const {
-    elementRef: gameScreenRef,
-    isFullscreen,
-    toggleFullscreen,
-  } = useFullscreen<HTMLElement>();
+  const { isFullscreen, toggleFullscreen } = useMainFullscreen();
   const [lastBet, setLastBet] = useState<Bet | null>(null);
   const [activeRounds, setActiveRounds] = useState<ActiveRound[]>([]);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -149,10 +144,7 @@ export function GameScreen() {
   ).length;
 
   return (
-    <section
-      ref={gameScreenRef}
-      className="flex min-h-screen w-full overflow-hidden bg-[#101725] pb-16 max-md:flex-col"
-    >
+    <section className="flex min-h-screen w-full overflow-hidden bg-[#101725] pb-16 max-md:flex-col">
       <GameSidebar
         animationsEnabled={animationsEnabled}
         activeManualRoundCount={activeManualRoundCount}
@@ -183,11 +175,6 @@ export function GameScreen() {
         risk={risk}
         rows={rows}
       />
-      {isFullscreen ? (
-        <footer className="fixed inset-x-0 bottom-0 z-40 border-t border-[#252D3E] bg-[#151A29]/95 px-4 backdrop-blur">
-          <AppFooterNav />
-        </footer>
-      ) : null}
     </section>
   );
 }
