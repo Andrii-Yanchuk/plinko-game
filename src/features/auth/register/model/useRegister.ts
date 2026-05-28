@@ -1,5 +1,5 @@
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
 import { register } from "@/features/auth/api/authApi";
 
@@ -13,7 +13,7 @@ export function useRegister() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  async function submit(payload: AuthFormPayload) {
+  const submit = useCallback(async (payload: AuthFormPayload) => {
     setError("");
     setIsLoading(true);
 
@@ -29,7 +29,7 @@ export function useRegister() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [router]);
 
   return {
     error,

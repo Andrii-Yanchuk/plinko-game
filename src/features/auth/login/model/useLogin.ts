@@ -1,5 +1,5 @@
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
 import { login } from "@/features/auth/api/authApi";
 
@@ -13,7 +13,7 @@ export function useLogin() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  async function submit(payload: AuthFormPayload) {
+  const submit = useCallback(async (payload: AuthFormPayload) => {
     setError("");
     setIsLoading(true);
 
@@ -31,7 +31,7 @@ export function useLogin() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [router]);
 
   return {
     error,
