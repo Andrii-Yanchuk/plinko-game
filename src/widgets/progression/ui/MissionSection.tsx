@@ -1,28 +1,27 @@
 import { Target, Zap } from "lucide-react";
+import { memo } from "react";
 import type { ProgressionMission } from "@/entities/progression/model/types";
 import { MissionCard } from "./MissionCard";
 
 type MissionSectionProps = {
-  isAnyClaimPending: boolean;
-  isMissionClaimPending: (id: string) => boolean;
   missions: ProgressionMission[];
   onClaimMission: (id: string) => void;
+  pendingMissionId: string | null;
   title: string;
 };
 
-export function MissionSection({
-  isAnyClaimPending,
-  isMissionClaimPending,
+export const MissionSection = memo(function MissionSection({
   missions,
   onClaimMission,
+  pendingMissionId,
   title,
 }: MissionSectionProps) {
+  const isStarterSection = title.toLowerCase().includes("starter");
+  const SectionIcon = isStarterSection ? Zap : Target;
+
   if (missions.length === 0) {
     return null;
   }
-
-  const isStarterSection = title.toLowerCase().includes("starter");
-  const SectionIcon = isStarterSection ? Zap : Target;
 
   return (
     <section className="flex flex-col gap-2">
@@ -38,15 +37,14 @@ export function MissionSection({
       <div className="flex flex-col gap-2">
         {missions.map((mission) => (
           <MissionCard
-            isAnyClaimPending={isAnyClaimPending}
-            isClaiming={isMissionClaimPending(mission.id)}
             isDaily={title.toLowerCase().includes("daily")}
             key={mission.id}
             mission={mission}
             onClaim={onClaimMission}
+            pendingMissionId={pendingMissionId}
           />
         ))}
       </div>
     </section>
   );
-}
+});

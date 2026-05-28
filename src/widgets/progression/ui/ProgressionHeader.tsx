@@ -1,7 +1,8 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { memo } from "react";
 
-export function ProgressionHeader() {
+export const ProgressionHeader = memo(function ProgressionHeader() {
   return (
     <header className="border-b border-[#222A3B]/80 bg-[#1A1F2EF2]">
       <div className="container flex h-16 min-w-0 items-center gap-3 px-4">
@@ -18,4 +19,4 @@ export function ProgressionHeader() {
       </div>
     </header>
   );
-}
+});

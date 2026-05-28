@@ -1,5 +1,6 @@
 import { Clock, Target } from "lucide-react";
 import Image from "next/image";
+import { memo, useCallback } from "react";
 import type { ProgressionMission } from "@/entities/progression/model/types";
 import { formatWholeCredits } from "@/entities/bet/lib/formatters";
 import {
@@ -10,29 +11,84 @@ import {
 import { ProgressBar } from "./ProgressBar";
 
 type MissionCardProps = {
-  isAnyClaimPending: boolean;
-  isClaiming: boolean;
   isDaily: boolean;
   mission: ProgressionMission;
   onClaim: (id: string) => void;
+  pendingMissionId: string | null;
 };
 
-export function MissionCard({
-  isAnyClaimPending,
+type MissionClaimButtonProps = {
+  claimedAt: string | null;
+  claimable: boolean;
+  isClaiming: boolean;
+  missionId: string;
+  onClaim: (id: string) => void;
+};
+
+const MissionClaimButton = memo(function MissionClaimButton({
+  claimedAt,
+  claimable,
   isClaiming,
+  missionId,
+  onClaim,
+}: MissionClaimButtonProps) {
+  const isButtonDisabled = !claimable || isClaiming;
+  const claimLabel = isClaiming ? "Claiming..." : claimedAt ? "Claimed" : "Claim";
+
+  const handleClaim = useCallback(() => {
+    onClaim(missionId);
+  }, [missionId, onClaim]);
+
+  return (
+    <button
+      className="shrink-0 cursor-pointer rounded-md bg-[#2B7FFF] px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-[#60A5FA] disabled:cursor-not-allowed disabled:opacity-60"
+      disabled={isButtonDisabled}
+      onClick={handleClaim}
+      type="button"
+    >
+      {claimLabel}
+    </button>
+  );
+});
+
+function areMissionCardPropsEqual(
+  previous: MissionCardProps,
+  next: MissionCardProps,
+) {
+  const previousMission = previous.mission;
+  const nextMission = next.mission;
+  const wasPending = previousMission.id === previous.pendingMissionId;
+  const isPending = nextMission.id === next.pendingMissionId;
+
+  return (
+    previous.isDaily === next.isDaily &&
+    previous.onClaim === next.onClaim &&
+    wasPending === isPending &&
+    previousMission.id === nextMission.id &&
+    previousMission.title === nextMission.title &&
+    previousMission.description === nextMission.description &&
+    previousMission.periodKey === nextMission.periodKey &&
+    previousMission.target === nextMission.target &&
+    previousMission.progress === nextMission.progress &&
+    previousMission.claimable === nextMission.claimable &&
+    previousMission.completedAt === nextMission.completedAt &&
+    previousMission.claimedAt === nextMission.claimedAt &&
+    previousMission.creditReward === nextMission.creditReward &&
+    previousMission.xpReward === nextMission.xpReward
+  );
+}
+
+export const MissionCard = memo(function MissionCard({
   isDaily,
   mission,
   onClaim,
+  pendingMissionId,
 }: MissionCardProps) {
+  const isClaiming = pendingMissionId === mission.id;
+
   const percent = getMissionPercent(mission);
   const shouldShowClaimButton = mission.claimable || mission.claimedAt;
   const shouldShowTimeLabel = isDaily;
-  const isButtonDisabled = !mission.claimable || isAnyClaimPending;
-  const claimLabel = isClaiming
-    ? "Claiming..."
-    : mission.claimedAt
-      ? "Claimed"
-      : "Claim";
   const timeLabel = isDaily
     ? getDailyMissionTimeLeftLabel(mission)
     : getMissionTimeLabel(mission);
@@ -52,14 +108,13 @@ export function MissionCard({
           </div>
         </div>
         {shouldShowClaimButton ? (
-          <button
-            className="shrink-0 cursor-pointer rounded-md bg-[#2B7FFF] px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-[#60A5FA] disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={isButtonDisabled}
-            onClick={() => onClaim(mission.id)}
-            type="button"
-          >
-            {claimLabel}
-          </button>
+          <MissionClaimButton
+            claimedAt={mission.claimedAt}
+            claimable={mission.claimable}
+            isClaiming={isClaiming}
+            missionId={mission.id}
+            onClaim={onClaim}
+          />
         ) : null}
       </div>
 
@@ -103,4 +158,4 @@ export function MissionCard({
       </div>
     </article>
   );
-}
+}, areMissionCardPropsEqual);

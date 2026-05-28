@@ -11,12 +11,10 @@ export function ProgressionView() {
     claimDaily,
     claimMission,
     errorMessage,
-    isAnyClaimPending,
-    isDailyClaimPending,
     isError,
     isLoading,
-    isMissionClaimPending,
     mutationErrorMessage,
+    pendingMissionId,
     progression,
   } = useProgressionView();
 
@@ -43,25 +41,26 @@ export function ProgressionView() {
           </div>
         ) : progression ? (
           <>
-            <LevelCard progression={progression} />
+            <LevelCard
+              level={progression.level}
+              xpForCurrentLevel={progression.xpForCurrentLevel}
+              xpForNextLevel={progression.xpForNextLevel}
+              xpIntoCurrentLevel={progression.xpIntoCurrentLevel}
+            />
             <DailyRewardCard
               daily={progression.daily}
-              isAnyClaimPending={isAnyClaimPending}
-              isPending={isDailyClaimPending}
               onClaim={claimDaily}
             />
             <MissionSection
-              isAnyClaimPending={isAnyClaimPending}
-              isMissionClaimPending={isMissionClaimPending}
               missions={progression.missions.daily}
               onClaimMission={claimMission}
+              pendingMissionId={pendingMissionId}
               title="Daily Missions"
             />
             <MissionSection
-              isAnyClaimPending={isAnyClaimPending}
-              isMissionClaimPending={isMissionClaimPending}
               missions={progression.missions.starter}
               onClaimMission={claimMission}
+              pendingMissionId={pendingMissionId}
               title="Starter Missions"
             />
           </>

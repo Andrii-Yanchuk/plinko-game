@@ -5,4 +5,6 @@ export const queryKeys = {
   gameConfig: ["gameConfig"] as const,
   profile: ["profile"] as const,
   progression: ["progression"] as const,
+  progressionDailyClaim: ["progression", "dailyClaim"] as const,
+  progressionMissionClaim: ["progression", "missionClaim"] as const,
 };

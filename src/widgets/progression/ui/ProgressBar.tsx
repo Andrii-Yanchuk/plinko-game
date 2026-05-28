@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { clampPercent } from "@/widgets/progression/lib/progression";
 
 type ProgressBarProps = {
@@ -6,7 +7,7 @@ type ProgressBarProps = {
   valueClassName: string;
 };
 
-export function ProgressBar({
+export const ProgressBar = memo(function ProgressBar({
   percent,
   trackClassName,
   valueClassName,
@@ -27,4 +28,4 @@ export function ProgressBar({
       />
     </div>
   );
-}
+});

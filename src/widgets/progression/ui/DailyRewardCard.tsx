@@ -1,28 +1,60 @@
 import { Clock, Gift, Zap } from "lucide-react";
 import Image from "next/image";
+import { useIsMutating } from "@tanstack/react-query";
+import { memo } from "react";
 import type { Progression } from "@/entities/progression/model/types";
 import { formatWholeCredits } from "@/entities/bet/lib/formatters";
+import { queryKeys } from "@/shared/lib/queryKeys";
 
 type DailyRewardCardProps = {
   daily: Progression["daily"];
-  isAnyClaimPending: boolean;
-  isPending: boolean;
   onClaim: () => void;
 };
 
-export function DailyRewardCard({
-  daily,
-  isAnyClaimPending,
-  isPending,
+type DailyRewardButtonProps = {
+  canClaim: boolean;
+  nextClaimAt: string | null;
+  onClaim: () => void;
+};
+
+const DailyRewardButton = memo(function DailyRewardButton({
+  canClaim,
+  nextClaimAt,
   onClaim,
-}: DailyRewardCardProps) {
-  const isClaimed = !daily.canClaim;
-  const day = Math.max(1, Math.min(daily.streak, 7));
+}: DailyRewardButtonProps) {
+  const dailyClaimCount = useIsMutating({
+    mutationKey: queryKeys.progressionDailyClaim,
+  });
+  const isPending = dailyClaimCount > 0;
+  const isClaimed = !canClaim;
   const label = isPending
     ? "Claiming..."
-    : daily.canClaim
+    : canClaim
       ? "Claim Now"
-      : getNextDailyClaimLabel(daily.nextClaimAt);
+      : getNextDailyClaimLabel(nextClaimAt);
+
+  return (
+    <button
+      className={`flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-lg text-sm font-bold transition-colors disabled:cursor-not-allowed ${
+        canClaim
+          ? "bg-[linear-gradient(90deg,#FF6900_0%,#FB2C36_100%)] text-white hover:opacity-90 disabled:opacity-60"
+          : "bg-[#2A2F3E] text-[#A7B0C2]"
+      }`}
+      disabled={!canClaim || isPending}
+      onClick={onClaim}
+      type="button"
+    >
+      {isClaimed ? <Clock aria-hidden="true" className="h-4 w-4" /> : null}
+      {label}
+    </button>
+  );
+});
+
+export const DailyRewardCard = memo(function DailyRewardCard({
+  daily,
+  onClaim,
+}: DailyRewardCardProps) {
+  const day = Math.max(1, Math.min(daily.streak, 7));
 
   return (
     <article className="rounded-[10px] border border-[rgba(255,105,0,0.3)] bg-[linear-gradient(135deg,rgba(255,105,0,0.1)_0%,rgba(251,44,54,0.1)_100%)] p-4 shadow-[0_16px_34px_rgba(0,0,0,0.18)]">
@@ -52,19 +84,11 @@ export function DailyRewardCard({
       </div>
 
       <div className="mt-4">
-        <button
-          className={`flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-lg text-sm font-bold transition-colors disabled:cursor-not-allowed ${
-            daily.canClaim
-              ? "bg-[linear-gradient(90deg,#FF6900_0%,#FB2C36_100%)] text-white hover:opacity-90 disabled:opacity-60"
-              : "bg-[#2A2F3E] text-[#A7B0C2]"
-          }`}
-          disabled={!daily.canClaim || isAnyClaimPending}
-          onClick={onClaim}
-          type="button"
-        >
-          {isClaimed ? <Clock aria-hidden="true" className="h-4 w-4" /> : null}
-          {label}
-        </button>
+        <DailyRewardButton
+          canClaim={daily.canClaim}
+          nextClaimAt={daily.nextClaimAt}
+          onClaim={onClaim}
+        />
       </div>
 
       <div className="mt-3 border-t border-[#FF6900]/15 pt-3">
@@ -77,6 +101,20 @@ export function DailyRewardCard({
         </div>
       </div>
     </article>
+  );
+}, areDailyRewardCardPropsEqual);
+
+function areDailyRewardCardPropsEqual(
+  previous: DailyRewardCardProps,
+  next: DailyRewardCardProps,
+) {
+  return (
+    previous.onClaim === next.onClaim &&
+    previous.daily.canClaim === next.daily.canClaim &&
+    previous.daily.streak === next.daily.streak &&
+    previous.daily.nextClaimAt === next.daily.nextClaimAt &&
+    previous.daily.reward.credits === next.daily.reward.credits &&
+    previous.daily.reward.xp === next.daily.reward.xp
   );
 }
 
