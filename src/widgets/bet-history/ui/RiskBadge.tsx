@@ -1,10 +1,11 @@
+import { memo } from "react";
 import type { Risk } from "@/entities/game/model/types";
 
 type RiskBadgeProps = {
   risk: Risk;
 };
 
-export function RiskBadge({ risk }: RiskBadgeProps) {
+export const RiskBadge = memo(function RiskBadge({ risk }: RiskBadgeProps) {
   const className =
     risk === "LOW"
       ? "bg-[#00C950]/15 text-[#00E783]"
@@ -17,4 +18,4 @@ export function RiskBadge({ risk }: RiskBadgeProps) {
       {risk}
     </span>
   );
-}
+});

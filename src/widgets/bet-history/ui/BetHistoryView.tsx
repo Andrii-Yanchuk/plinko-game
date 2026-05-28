@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useMemo } from "react";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -9,7 +10,8 @@ import { queryKeys } from "@/shared/lib/queryKeys";
 import { betHistoryPageSize } from "@/widgets/bet-history/model/constants";
 import { useBetHistoryFiltersStore } from "@/widgets/bet-history/model/useBetHistoryFiltersStore";
 import { HistoryFilters } from "./HistoryFilters";
-import { HistoryItem } from "./HistoryItem";
+import { HistoryList } from "./HistoryList";
+import { LoadMoreButton } from "./LoadMoreButton";
 
 export function BetHistoryView() {
   const risk = useBetHistoryFiltersStore((state) => state.risk);
@@ -40,7 +42,13 @@ export function BetHistoryView() {
     queryKey: queryKeys.betHistory({ risk: selectedRisk, rows: selectedRows }),
   });
 
-  const visibleItems = data?.pages.flatMap((page) => page.items) ?? [];
+  const visibleItems = useMemo(
+    () => data?.pages.flatMap((page) => page.items) ?? [],
+    [data?.pages],
+  );
+  const handleLoadMore = useCallback(() => {
+    void fetchNextPage();
+  }, [fetchNextPage]);
 
   return (
     <main className="min-h-screen bg-[#101725] pb-20 text-[#F4F7FB]">
@@ -78,11 +86,7 @@ export function BetHistoryView() {
             Loading history...
           </div>
         ) : visibleItems.length > 0 ? (
-          <div className="flex flex-col gap-3">
-            {visibleItems.map((bet) => (
-              <HistoryItem bet={bet} key={bet.betId} />
-            ))}
-          </div>
+          <HistoryList items={visibleItems} />
         ) : !isError ? (
           <div className="rounded-lg border border-[#2A2F3E] bg-[#1A1F2E] p-4 text-sm text-[#8D96A8]">
             No bets found.
@@ -90,14 +94,10 @@ export function BetHistoryView() {
         ) : null}
 
         {hasNextPage ? (
-          <button
-            className="self-center cursor-pointer rounded-lg border border-[#2A2F3E] bg-[#1A1F2E] px-5 py-2 text-sm font-medium text-[#D1D5DC] transition-colors hover:bg-[#222A3D] disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={isFetchingNextPage}
-            onClick={() => fetchNextPage()}
-            type="button"
-          >
-            {isFetchingNextPage ? "Loading..." : "Load more"}
-          </button>
+          <LoadMoreButton
+            isLoading={isFetchingNextPage}
+            onLoadMore={handleLoadMore}
+          />
         ) : null}
       </section>
     </main>

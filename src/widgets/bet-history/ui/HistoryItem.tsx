@@ -1,5 +1,5 @@
 import type { Bet } from "@/entities/bet/model/types";
-import type { ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 import { formatDate, formatProfit, getProfit } from "@/entities/bet/lib/formatters";
 import { getMultiplierTextTone } from "@/widgets/plinko-board/lib/multiplier";
 import { CreditAmount } from "./CreditAmount";
@@ -16,7 +16,7 @@ type HistoryFieldProps = {
   alignCenter?: boolean;
 };
 
-function HistoryField({
+const HistoryField = memo(function HistoryField({
   label,
   children,
   alignCenter,
@@ -36,9 +36,9 @@ function HistoryField({
       {children}
     </div>
   );
-}
+});
 
-export function HistoryItem({ bet }: HistoryItemProps) {
+export const HistoryItem = memo(function HistoryItem({ bet }: HistoryItemProps) {
   const profit = getProfit(bet);
   const profitClassName = profit >= 0 ? "text-[#00E783]" : "text-[#FB2C36]";
   const multiplierClassName = `text-[18px] font-bold leading-5 ${getMultiplierTextTone(bet.multiplier)}`;
@@ -118,4 +118,4 @@ export function HistoryItem({ bet }: HistoryItemProps) {
       </div>
     </article>
   );
-}
+});

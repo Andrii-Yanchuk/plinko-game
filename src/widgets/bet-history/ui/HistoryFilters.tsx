@@ -1,4 +1,5 @@
 import { Funnel } from "lucide-react";
+import { memo } from "react";
 import type { Risk } from "@/entities/game/model/types";
 import { riskOptions, rowOptions } from "@/widgets/bet-history/model/constants";
 
@@ -9,7 +10,7 @@ type HistoryFiltersProps = {
   onRowsChange: (rows: string) => void;
 };
 
-export function HistoryFilters({
+export const HistoryFilters = memo(function HistoryFilters({
   risk,
   rows,
   onRiskChange,
@@ -53,4 +54,4 @@ export function HistoryFilters({
       </label>
     </div>
   );
-}
+});
