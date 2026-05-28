@@ -12,7 +12,6 @@ import { useGameSidebarActions } from "@/widgets/game-sidebar/model/useGameSideb
 import { AutoPlayControls } from "./AutoPlayControls";
 import { BetActionButton } from "./BetActionButton";
 import { BetAmountControl } from "./BetAmountControl";
-import { LastBetSummary } from "./LastBetSummary";
 import { ModeToggle } from "./ModeToggle";
 import { RiskSelector } from "./RiskSelector";
 import { RowsSelector } from "./RowsSelector";
@@ -23,7 +22,6 @@ type GameSidebarProps = {
   animationsEnabled: boolean;
   config?: GameConfig;
   isMobileOpen?: boolean;
-  lastBet: Bet | null;
   manualRoundLimit: number;
   onAnimationsChange: (enabled: boolean) => void;
   onBetPlaced: (bet: Bet, context: RoundContext) => Promise<void> | void;
@@ -45,7 +43,6 @@ export function GameSidebar({
   config,
   isFullscreen,
   isMobileOpen = false,
-  lastBet,
   manualRoundLimit,
   onAnimationsChange,
   onBetPlaced,
@@ -170,7 +167,6 @@ export function GameSidebar({
           </p>
         ) : null}
 
-        <LastBetSummary lastBet={lastBet} />
         <SidebarFooter
           animationsEnabled={animationsEnabled}
           isFullscreen={isFullscreen}

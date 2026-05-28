@@ -28,7 +28,6 @@ export function GameScreen() {
   } | null>(null);
   const completedPresentationRoundIdsRef = useRef(new Set<string>());
   const { isFullscreen, toggleFullscreen } = useMainFullscreen();
-  const [lastBet, setLastBet] = useState<Bet | null>(null);
   const [activeRounds, setActiveRounds] = useState<ActiveRound[]>([]);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const animationsEnabled = useGameScreenStore(
@@ -70,74 +69,81 @@ export function GameScreen() {
     });
   }, [activeRounds]);
 
-  const handleBetPresentationComplete = useCallback((roundId: string) => {
-    if (completedPresentationRoundIdsRef.current.has(roundId)) {
-      return;
-    }
+  const handleBetPresentationComplete = useCallback(
+    (roundId: string) => {
+      if (completedPresentationRoundIdsRef.current.has(roundId)) {
+        return;
+      }
 
-    const completedRound = activeRounds.find((round) => round.id === roundId);
+      const completedRound = activeRounds.find((round) => round.id === roundId);
 
-    if (!completedRound) {
-      return;
-    }
+      if (!completedRound) {
+        return;
+      }
 
-    completedPresentationRoundIdsRef.current.add(roundId);
+      completedPresentationRoundIdsRef.current.add(roundId);
 
-    const { bet } = completedRound;
+      const { bet } = completedRound;
 
-    setActiveRounds((currentRounds) =>
-      currentRounds.map((round) =>
-        round.id === completedRound.id
-          ? { ...round, isResultVisible: true }
-          : round,
-      ),
-    );
-
-    gameSound.playBucketHit();
-    gameSound.playResult(bet);
-
-    queryClient.setQueryData<CurrentUser>(
-      queryKeys.currentUser,
-      (currentUser) =>
-        currentUser ? { ...currentUser, balance: bet.balanceAfter } : currentUser,
-    );
-
-    void delay(completedRound.resultPauseMs).then(() => {
       setActiveRounds((currentRounds) =>
-        currentRounds.filter((round) => round.id !== completedRound.id),
+        currentRounds.map((round) =>
+          round.id === completedRound.id
+            ? { ...round, isResultVisible: true }
+            : round,
+        ),
       );
 
-      const pendingAutoRound = autoRoundCompletionRef.current;
+      gameSound.playBucketHit();
+      gameSound.playResult(bet);
 
-      if (pendingAutoRound?.roundId === completedRound.id) {
-        autoRoundCompletionRef.current = null;
-        pendingAutoRound.resolve();
+      queryClient.setQueryData<CurrentUser>(
+        queryKeys.currentUser,
+        (currentUser) =>
+          currentUser
+            ? { ...currentUser, balance: bet.balanceAfter }
+            : currentUser,
+      );
+
+      void delay(completedRound.resultPauseMs).then(() => {
+        setActiveRounds((currentRounds) =>
+          currentRounds.filter((round) => round.id !== completedRound.id),
+        );
+
+        const pendingAutoRound = autoRoundCompletionRef.current;
+
+        if (pendingAutoRound?.roundId === completedRound.id) {
+          autoRoundCompletionRef.current = null;
+          pendingAutoRound.resolve();
+        }
+      });
+    },
+    [activeRounds, gameSound, queryClient],
+  );
+
+  const handleBetPlaced = useCallback(
+    (bet: Bet, context: RoundContext) => {
+      const activeRound = createActiveRound({
+        animationsEnabled,
+        bet,
+        context,
+      });
+
+      gameSound.playBetStart();
+      setActiveRounds((currentRounds) => [...currentRounds, activeRound]);
+
+      if (context.mode === "Manual") {
+        return;
       }
-    });
-  }, [activeRounds, gameSound, queryClient]);
 
-  const handleBetPlaced = useCallback((bet: Bet, context: RoundContext) => {
-    const activeRound = createActiveRound({
-      animationsEnabled,
-      bet,
-      context,
-    });
-
-    gameSound.playBetStart();
-    setLastBet(bet);
-    setActiveRounds((currentRounds) => [...currentRounds, activeRound]);
-
-    if (context.mode === "Manual") {
-      return;
-    }
-
-    return new Promise<void>((resolve) => {
-      autoRoundCompletionRef.current = {
-        roundId: activeRound.id,
-        resolve,
-      };
-    });
-  }, [animationsEnabled, gameSound]);
+      return new Promise<void>((resolve) => {
+        autoRoundCompletionRef.current = {
+          roundId: activeRound.id,
+          resolve,
+        };
+      });
+    },
+    [animationsEnabled, gameSound],
+  );
 
   const activeManualRoundCount = activeRounds.filter(
     (round) => round.mode === "Manual",
@@ -151,7 +157,6 @@ export function GameScreen() {
         config={gameConfig}
         isFullscreen={isFullscreen}
         isMobileOpen={isMobileSidebarOpen}
-        lastBet={lastBet}
         manualRoundLimit={manualRoundLimit}
         onAnimationsChange={setAnimationsEnabled}
         onBetPlaced={handleBetPlaced}
