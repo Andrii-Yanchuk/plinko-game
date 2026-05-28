@@ -204,8 +204,7 @@ export function useGameSidebarActions({
 
   const isManualBetDisabled =
     isManualRequestPending || isManualRoundLimitReached;
-  const isSidebarDisabled =
-    autoPlay.isPlaying || placeBetMutation.isPending || hasActiveManualRounds;
+  const isSidebarDisabled = autoPlay.isPlaying || hasActiveManualRounds;
 
   return {
     autoPlay,

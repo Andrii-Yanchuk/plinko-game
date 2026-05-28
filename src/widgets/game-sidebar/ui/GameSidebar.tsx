@@ -173,7 +173,7 @@ export const GameSidebar = memo(function GameSidebar({
           onAnimationsChange={onAnimationsChange}
           onFullscreenClick={onFullscreenClick}
           onSoundChange={onSoundChange}
-          isAnimationToggleDisabled={isSidebarDisabled}
+          isAnimationToggleDisabled={false}
           soundEnabled={soundEnabled}
         />
       </>
