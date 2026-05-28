@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 type RowsSelectorProps = {
   disabled?: boolean;
   maxRows: number;
@@ -7,7 +9,7 @@ type RowsSelectorProps = {
   rowsProgress: number;
 };
 
-export function RowsSelector({
+export const RowsSelector = memo(function RowsSelector({
   disabled = false,
   maxRows,
   minRows,
@@ -42,4 +44,4 @@ export function RowsSelector({
       </div>
     </>
   );
-}
+})

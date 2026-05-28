@@ -1,5 +1,5 @@
 import { Maximize2, Settings } from "lucide-react";
-import { useCallback, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { SettingsModal } from "./SettingsModal";
 
 type SidebarFooterProps = {
@@ -12,7 +12,7 @@ type SidebarFooterProps = {
   soundEnabled: boolean;
 };
 
-export function SidebarFooter({
+export const SidebarFooter = memo(function SidebarFooter({
   animationsEnabled,
   isAnimationToggleDisabled,
   isFullscreen,
@@ -59,4 +59,4 @@ export function SidebarFooter({
       ) : null}
     </>
   );
-}
+})

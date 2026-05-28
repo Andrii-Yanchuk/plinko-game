@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { Risk } from "@/entities/game/model/types";
 import { riskStyles } from "@/widgets/game-sidebar/model/constants";
 
@@ -8,7 +9,7 @@ type RiskSelectorProps = {
   risk: Risk;
 };
 
-export function RiskSelector({
+export const RiskSelector = memo(function RiskSelector({
   availableRisks,
   disabled = false,
   onRiskChange,
@@ -36,4 +37,4 @@ export function RiskSelector({
       </div>
     </>
   );
-}
+})

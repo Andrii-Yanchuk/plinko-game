@@ -1,7 +1,7 @@
 "use client";
 
 import { SlidersHorizontal, X } from "lucide-react";
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import type { Bet } from "@/entities/bet/model/types";
 import type {
   GameConfig,
@@ -37,7 +37,7 @@ type GameSidebarProps = {
   soundEnabled: boolean;
 };
 
-export function GameSidebar({
+export const GameSidebar = memo(function GameSidebar({
   activeManualRoundCount,
   animationsEnabled,
   config,
@@ -259,4 +259,4 @@ export function GameSidebar({
       </div>
     </>
   );
-}
+})

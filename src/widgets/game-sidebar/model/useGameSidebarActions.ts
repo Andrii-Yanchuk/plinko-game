@@ -1,4 +1,4 @@
-import type { KeyboardEvent } from "react";
+import { useCallback, type KeyboardEvent } from "react";
 import type { Bet } from "@/entities/bet/model/types";
 import type {
   BetControl,
@@ -72,28 +72,34 @@ export function useGameSidebarActions({
     selectedMode === "Manual" && placeBetMutation.isPending;
   const isBetAmountDisabled = placeBetMutation.isPending;
 
-  function handleBetAmountKeyDown(event: KeyboardEvent<HTMLInputElement>) {
-    if (isBlockedNumberInputKey(event.key)) {
-      event.preventDefault();
-    }
-  }
+  const handleBetAmountKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+      if (isBlockedNumberInputKey(event.key)) {
+        event.preventDefault();
+      }
+    },
+    [],
+  );
 
-  function handleBetControlClick(control: BetControl) {
-    const nextBetAmount = getNextBetAmount(
-      betAmount,
-      control,
-      minBetAmount,
-      maxBetAmount,
-    );
+  const handleBetControlClick = useCallback(
+    (control: BetControl) => {
+      const nextBetAmount = getNextBetAmount(
+        betAmount,
+        control,
+        minBetAmount,
+        maxBetAmount,
+      );
 
-    if (nextBetAmount === null) {
-      return;
-    }
+      if (nextBetAmount === null) {
+        return;
+      }
 
-    setBetAmount(nextBetAmount);
-  }
+      setBetAmount(nextBetAmount);
+    },
+    [betAmount, minBetAmount, maxBetAmount, setBetAmount],
+  );
 
-  async function handleBetClick() {
+  const handleBetClick = useCallback(async () => {
     if (
       selectedMode === "Auto" ||
       placeBetMutation.isPending ||
@@ -123,9 +129,21 @@ export function useGameSidebarActions({
     } catch (error) {
       setError(error instanceof Error ? error.message : "Unable to place bet");
     }
-  }
+  }, [
+    selectedMode,
+    placeBetMutation.isPending,
+    placeBetMutation.placeBet,
+    isManualRoundLimitReached,
+    getValidatedBetAmount,
+    betAmount,
+    setError,
+    validationMessage,
+    clearError,
+    rows,
+    risk,
+  ]);
 
-  async function handleStartAutoPlay() {
+  const handleStartAutoPlay = useCallback(async () => {
     const amount = getValidatedBetAmount(betAmount);
 
     if (!amount) {
@@ -147,9 +165,21 @@ export function useGameSidebarActions({
     } catch (error) {
       setError(error instanceof Error ? error.message : "Unable to auto play");
     }
-  }
+  }, [
+    getValidatedBetAmount,
+    betAmount,
+    setError,
+    validationMessage,
+    clearError,
+    autoPlay.start,
+    autoBetCount,
+    risk,
+    rows,
+    stopOnLoss,
+    stopOnProfit,
+  ]);
 
-  function handleMainButtonClick() {
+  const handleMainButtonClick = useCallback(() => {
     if (autoPlay.isPlaying) {
       if (!autoPlay.isStopping) {
         autoPlay.stop();
@@ -163,7 +193,14 @@ export function useGameSidebarActions({
     }
 
     void handleBetClick();
-  }
+  }, [
+    autoPlay.isPlaying,
+    autoPlay.isStopping,
+    autoPlay.stop,
+    selectedMode,
+    handleStartAutoPlay,
+    handleBetClick,
+  ]);
 
   const isManualBetDisabled =
     isManualRequestPending || isManualRoundLimitReached;

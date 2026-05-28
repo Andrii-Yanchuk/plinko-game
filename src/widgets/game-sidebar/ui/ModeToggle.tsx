@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { GameMode } from "@/entities/game/model/types";
 import { modes } from "@/widgets/game-sidebar/model/constants";
 
@@ -7,7 +8,7 @@ type ModeToggleProps = {
   onModeChange: (mode: GameMode) => void;
 };
 
-export function ModeToggle({
+export const ModeToggle = memo(function ModeToggle({
   disabled = false,
   mode,
   onModeChange,
@@ -40,4 +41,4 @@ export function ModeToggle({
       })}
     </div>
   );
-}
+})

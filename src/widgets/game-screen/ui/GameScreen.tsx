@@ -29,6 +29,7 @@ export function GameScreen() {
   const completedPresentationRoundIdsRef = useRef(new Set<string>());
   const { isFullscreen, toggleFullscreen } = useMainFullscreen();
   const [activeRounds, setActiveRounds] = useState<ActiveRound[]>([]);
+  const activeRoundsRef = useRef(activeRounds);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const animationsEnabled = useGameScreenStore(
     (state) => state.animationsEnabled,
@@ -50,6 +51,10 @@ export function GameScreen() {
     queryFn: getGameConfig,
     queryKey: queryKeys.gameConfig,
   });
+
+  useEffect(() => {
+    activeRoundsRef.current = activeRounds;
+  }, [activeRounds]);
 
   useEffect(() => {
     setActiveRoundCount(activeRounds.length);
@@ -75,7 +80,9 @@ export function GameScreen() {
         return;
       }
 
-      const completedRound = activeRounds.find((round) => round.id === roundId);
+      const completedRound = activeRoundsRef.current.find(
+        (round) => round.id === roundId,
+      );
 
       if (!completedRound) {
         return;
@@ -117,7 +124,7 @@ export function GameScreen() {
         }
       });
     },
-    [activeRounds, gameSound, queryClient],
+    [gameSound, queryClient],
   );
 
   const handleBetPlaced = useCallback(
@@ -149,6 +156,12 @@ export function GameScreen() {
     (round) => round.mode === "Manual",
   ).length;
 
+  const handleMobileClose = useCallback(
+    () => setIsMobileSidebarOpen(false),
+    [],
+  );
+  const handleMobileOpen = useCallback(() => setIsMobileSidebarOpen(true), []);
+
   return (
     <section className="flex min-h-screen w-full overflow-hidden bg-[#101725] pb-16 max-md:flex-col">
       <GameSidebar
@@ -161,8 +174,8 @@ export function GameScreen() {
         onAnimationsChange={setAnimationsEnabled}
         onBetPlaced={handleBetPlaced}
         onFullscreenClick={toggleFullscreen}
-        onMobileClose={() => setIsMobileSidebarOpen(false)}
-        onMobileOpen={() => setIsMobileSidebarOpen(true)}
+        onMobileClose={handleMobileClose}
+        onMobileOpen={handleMobileOpen}
         onRiskChange={setRisk}
         onRowsChange={setRows}
         onSoundChange={setSoundEnabled}
@@ -175,7 +188,7 @@ export function GameScreen() {
         isAnimationEnabled={animationsEnabled}
         config={gameConfig}
         onRoundAnimationComplete={handleBetPresentationComplete}
-        onMobileMenuClick={() => setIsMobileSidebarOpen(true)}
+        onMobileMenuClick={handleMobileOpen}
         onPegImpact={gameSound.playPegHit}
         risk={risk}
         rows={rows}
