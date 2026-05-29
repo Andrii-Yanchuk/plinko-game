@@ -1,5 +1,5 @@
 import { useCallback, type KeyboardEvent } from "react";
-import type { Bet } from "@/entities/bet/model/types";
+import type { Bet, PlaceBetPayload } from "@/entities/bet/model/types";
 import type {
   BetControl,
   GameConfig,
@@ -63,8 +63,13 @@ export function useGameSidebarActions({
     onBetAmountSettled: setBetAmount,
     onBetPlaced,
   });
+  const placeAutoBet = useCallback(
+    (payload: PlaceBetPayload) =>
+      placeBetMutation.placeBet(payload, { mode: "Auto" }),
+    [placeBetMutation.placeBet],
+  );
   const autoPlay = useAutoPlay({
-    placeBet: (payload) => placeBetMutation.placeBet(payload, { mode: "Auto" }),
+    placeBet: placeAutoBet,
   });
   const hasActiveManualRounds = activeManualRoundCount > 0;
   const isManualRoundLimitReached = activeManualRoundCount >= manualRoundLimit;

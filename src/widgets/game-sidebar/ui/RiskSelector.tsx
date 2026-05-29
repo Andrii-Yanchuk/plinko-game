@@ -37,4 +37,4 @@ export const RiskSelector = memo(function RiskSelector({
       </div>
     </>
   );
-})
+});

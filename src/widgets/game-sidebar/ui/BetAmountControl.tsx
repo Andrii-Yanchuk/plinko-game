@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { KeyboardEvent } from "react";
+import { memo, type KeyboardEvent } from "react";
 import type { BetControl } from "@/entities/game/model/types";
 import { betControls } from "@/widgets/game-sidebar/model/constants";
 
@@ -11,7 +11,7 @@ type BetAmountControlProps = {
   onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
 };
 
-export function BetAmountControl({
+export const BetAmountControl = memo(function BetAmountControl({
   amount,
   disabled = false,
   onAmountChange,
@@ -59,4 +59,4 @@ export function BetAmountControl({
       </div>
     </>
   );
-}
+});

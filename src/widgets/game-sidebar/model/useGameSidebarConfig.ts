@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import type { GameConfig } from "@/entities/game/model/types";
 import {
   getCreditsFromMinimalUnits,
@@ -19,19 +20,22 @@ export function useGameSidebarConfig(config: GameConfig | undefined, rows: numbe
     ? getCreditsFromMinimalUnits(config.maxBet)
     : 1_000_000;
 
-  function getValidatedBetAmount(value: string) {
-    const amount = Number(value);
+  const getValidatedBetAmount = useCallback(
+    (value: string) => {
+      const amount = Number(value);
 
-    if (
-      !Number.isFinite(amount) ||
-      amount < minBetAmount ||
-      amount > maxBetAmount
-    ) {
-      return null;
-    }
+      if (
+        !Number.isFinite(amount) ||
+        amount < minBetAmount ||
+        amount > maxBetAmount
+      ) {
+        return null;
+      }
 
-    return getMinimalUnitsFromCredits(value);
-  }
+      return getMinimalUnitsFromCredits(value);
+    },
+    [minBetAmount, maxBetAmount],
+  );
 
   return {
     availableRisks,

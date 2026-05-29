@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import type { Bet, PlaceBetPayload } from "@/entities/bet/model/types";
 import { getMinimalUnitsFromCredits } from "@/entities/game/lib/amount";
 import type { Risk } from "@/entities/game/model/types";
@@ -31,67 +32,70 @@ export function useAutoPlay({ placeBet }: UseAutoPlayParams) {
   const clearStopRequest = useAutoPlayStore((state) => state.clearStopRequest);
   const reset = useAutoPlayStore((state) => state.reset);
 
-  async function start(params: AutoPlayParams) {
-    const totalBets = parsePositiveInteger(params.numberOfBets);
-    const stopOnProfitAmount = parseNonNegativeNumber(params.stopOnProfit);
-    const stopOnLossAmount = parseNonNegativeNumber(params.stopOnLoss);
+  const start = useCallback(
+    async (params: AutoPlayParams) => {
+      const totalBets = parsePositiveInteger(params.numberOfBets);
+      const stopOnProfitAmount = parseNonNegativeNumber(params.stopOnProfit);
+      const stopOnLossAmount = parseNonNegativeNumber(params.stopOnLoss);
 
-    if (!totalBets) {
-      throw new Error("Enter a valid number of bets");
-    }
-
-    if (stopOnProfitAmount === null || stopOnLossAmount === null) {
-      throw new Error("Stop on profit and stop on loss must be 0 or more");
-    }
-
-    setPlaying(true);
-    setStopping(false);
-    setProgress({ current: 1, total: totalBets });
-    clearStopRequest();
-
-    const stopOnProfitUnits = Number(
-      getMinimalUnitsFromCredits(stopOnProfitAmount.toString()),
-    );
-    const stopOnLossUnits = Number(
-      getMinimalUnitsFromCredits(stopOnLossAmount.toString()),
-    );
-    let sessionProfit = 0;
-
-    try {
-      for (let betIndex = 1; betIndex <= totalBets; betIndex += 1) {
-        if (useAutoPlayStore.getState().stopRequested) {
-          break;
-        }
-
-        setProgress({ current: betIndex, total: totalBets });
-
-        const bet = await placeBet({
-          amount: params.amount,
-          rows: params.rows,
-          risk: params.risk,
-        });
-
-        sessionProfit += Number(bet.payout) - Number(bet.amount);
-
-        const reachedProfit =
-          stopOnProfitUnits > 0 && sessionProfit >= stopOnProfitUnits;
-        const reachedLoss =
-          stopOnLossUnits > 0 && sessionProfit <= -stopOnLossUnits;
-
-        if (reachedProfit || reachedLoss) {
-          break;
-        }
+      if (!totalBets) {
+        throw new Error("Enter a valid number of bets");
       }
-    } finally {
-      reset();
-      clearStopRequest();
-    }
-  }
 
-  function stop() {
+      if (stopOnProfitAmount === null || stopOnLossAmount === null) {
+        throw new Error("Stop on profit and stop on loss must be 0 or more");
+      }
+
+      setPlaying(true);
+      setStopping(false);
+      setProgress({ current: 1, total: totalBets });
+      clearStopRequest();
+
+      const stopOnProfitUnits = Number(
+        getMinimalUnitsFromCredits(stopOnProfitAmount.toString()),
+      );
+      const stopOnLossUnits = Number(
+        getMinimalUnitsFromCredits(stopOnLossAmount.toString()),
+      );
+      let sessionProfit = 0;
+
+      try {
+        for (let betIndex = 1; betIndex <= totalBets; betIndex += 1) {
+          if (useAutoPlayStore.getState().stopRequested) {
+            break;
+          }
+
+          setProgress({ current: betIndex, total: totalBets });
+
+          const bet = await placeBet({
+            amount: params.amount,
+            rows: params.rows,
+            risk: params.risk,
+          });
+
+          sessionProfit += Number(bet.payout) - Number(bet.amount);
+
+          const reachedProfit =
+            stopOnProfitUnits > 0 && sessionProfit >= stopOnProfitUnits;
+          const reachedLoss =
+            stopOnLossUnits > 0 && sessionProfit <= -stopOnLossUnits;
+
+          if (reachedProfit || reachedLoss) {
+            break;
+          }
+        }
+      } finally {
+        reset();
+        clearStopRequest();
+      }
+    },
+    [placeBet, setPlaying, setStopping, setProgress, clearStopRequest, reset],
+  );
+
+  const stop = useCallback(() => {
     setStopping(true);
     requestStop();
-  }
+  }, [setStopping, requestStop]);
 
   return {
     isPlaying,

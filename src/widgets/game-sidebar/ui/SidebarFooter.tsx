@@ -59,4 +59,4 @@ export const SidebarFooter = memo(function SidebarFooter({
       ) : null}
     </>
   );
-})
+});

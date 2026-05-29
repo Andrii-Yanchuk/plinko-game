@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { placeBet as placeBetRequest } from "@/entities/bet/api/betsApi";
 import type { Bet, PlaceBetPayload } from "@/entities/bet/model/types";
@@ -16,17 +17,17 @@ export function usePlaceBet({
     mutationFn: placeBetRequest,
   });
 
-  async function placeBetWithContext(
-    payload: PlaceBetPayload,
-    context: RoundContext,
-  ) {
-    const bet = await mutation.mutateAsync(payload);
+  const placeBetWithContext = useCallback(
+    async (payload: PlaceBetPayload, context: RoundContext) => {
+      const bet = await mutation.mutateAsync(payload);
 
-    onBetAmountSettled((Number(bet.amount) / 1_000_000).toFixed(2));
-    await onBetPlaced(bet, context);
+      onBetAmountSettled((Number(bet.amount) / 1_000_000).toFixed(2));
+      await onBetPlaced(bet, context);
 
-    return bet;
-  }
+      return bet;
+    },
+    [mutation.mutateAsync, onBetAmountSettled, onBetPlaced],
+  );
 
   return {
     isPending: mutation.isPending,

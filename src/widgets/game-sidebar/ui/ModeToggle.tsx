@@ -41,4 +41,4 @@ export const ModeToggle = memo(function ModeToggle({
       })}
     </div>
   );
-})
+});

@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { GameMode } from "@/entities/game/model/types";
 
 type BetActionButtonProps = {
@@ -25,7 +26,7 @@ function LoadingButtonContent({ children }: { children: string }) {
   );
 }
 
-export function BetActionButton({
+export const BetActionButton = memo(function BetActionButton({
   activeManualRoundCount,
   autoProgress,
   className = "",
@@ -54,16 +55,15 @@ export function BetActionButton({
         ) : (
           `STOP (${autoProgress.current}/${autoProgress.total})`
         )
-      )
-        : mode === "Auto"
-          ? "Start Auto"
-          : isManualRequestPending
-            ? (
-                <LoadingButtonContent>Playing...</LoadingButtonContent>
-              )
-            : activeManualRoundCount > 0
-              ? `Playing... (${activeManualRoundCount}/${manualRoundLimit})`
-              : "Bet"}
+      ) : mode === "Auto" ? (
+        "Start Auto"
+      ) : isManualRequestPending ? (
+        <LoadingButtonContent>Playing...</LoadingButtonContent>
+      ) : activeManualRoundCount > 0 ? (
+        `Playing... (${activeManualRoundCount}/${manualRoundLimit})`
+      ) : (
+        "Bet"
+      )}
     </button>
   );
-}
+});
