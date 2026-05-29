@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { getCompletedImpactIndex } from "@/features/game-sound/lib/soundEvents";
 import type { ActiveRound } from "@/widgets/game-screen/model/activeRound";
 import {
+  type BallPosition,
   type BoardLayout,
   getBallPath,
   getBoardHeight,
@@ -41,6 +42,7 @@ export function PlinkoCanvas({
   const activeRoundsRef = useRef(activeRounds);
   const startedAtByRoundRef = useRef(new Map<string, number>());
   const lastImpactSoundIndexByRoundRef = useRef(new Map<string, number>());
+  const ballPathByRoundRef = useRef(new Map<string, BallPosition[]>());
   const completedRoundIdsRef = useRef(new Set<string>());
   const onAnimationCompleteRef = useRef(onAnimationComplete);
   const onPegImpactRef = useRef(onPegImpact);
@@ -79,6 +81,12 @@ export function PlinkoCanvas({
       }
     });
 
+    ballPathByRoundRef.current.forEach((_, roundId) => {
+      if (!activeRoundIds.has(roundId)) {
+        ballPathByRoundRef.current.delete(roundId);
+      }
+    });
+
     completedRoundIdsRef.current.forEach((roundId) => {
       if (!activeRoundIds.has(roundId)) {
         completedRoundIdsRef.current.delete(roundId);
@@ -102,7 +110,12 @@ export function PlinkoCanvas({
           return;
         }
 
-        const ballPath = getBallPath(round.bet, rows, round.risk, layout);
+        let ballPath = ballPathByRoundRef.current.get(round.id);
+
+        if (!ballPath) {
+          ballPath = getBallPath(round.bet, rows, round.risk, layout);
+          ballPathByRoundRef.current.set(round.id, ballPath);
+        }
 
         if (ballPath.length === 0) {
           completedRoundIdsRef.current.add(round.id);
@@ -203,6 +216,9 @@ export function PlinkoCanvas({
     if (!context) {
       return;
     }
+
+    // Cached ball paths are geometry-specific, so invalidate them here.
+    ballPathByRoundRef.current.clear();
 
     drawPegLayer(context, {
       height: boardHeight,
