@@ -242,3 +242,5 @@ export function useGameSidebarActions({
     stopOnProfit,
   };
 }
+
+export type GameSidebarActions = ReturnType<typeof useGameSidebarActions>;
