@@ -56,7 +56,7 @@ export function BetHistoryView() {
         <div className="container flex h-12 min-w-0 items-center gap-2 px-3 sm:h-16 sm:gap-3 sm:px-4">
           <Link
             aria-label="Back to game"
-            className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-[8px] text-[#D1D5DC] transition-colors hover:bg-[#222A3D]"
+            className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[#D1D5DC] transition-colors hover:bg-[#222A3D]"
             href="/game"
           >
             <ArrowLeft aria-hidden="true" className="h-5 w-5" />
