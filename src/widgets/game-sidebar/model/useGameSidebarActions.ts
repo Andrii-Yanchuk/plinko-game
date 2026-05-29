@@ -59,23 +59,28 @@ export function useGameSidebarActions({
     rowsProgress,
     validationMessage,
   } = useGameSidebarConfig(config, rows);
-  const placeBetMutation = usePlaceBet({
+  const { isPending: isPlaceBetPending, placeBet } = usePlaceBet({
     onBetAmountSettled: setBetAmount,
     onBetPlaced,
   });
   const placeAutoBet = useCallback(
-    (payload: PlaceBetPayload) =>
-      placeBetMutation.placeBet(payload, { mode: "Auto" }),
-    [placeBetMutation.placeBet],
+    (payload: PlaceBetPayload) => placeBet(payload, { mode: "Auto" }),
+    [placeBet],
   );
   const autoPlay = useAutoPlay({
     placeBet: placeAutoBet,
   });
+  const {
+    isPlaying: isAutoPlaying,
+    isStopping: isAutoStopping,
+    start: startAutoPlay,
+    stop: stopAutoPlay,
+  } = autoPlay;
   const hasActiveManualRounds = activeManualRoundCount > 0;
   const isManualRoundLimitReached = activeManualRoundCount >= manualRoundLimit;
   const isManualRequestPending =
-    selectedMode === "Manual" && placeBetMutation.isPending;
-  const isBetAmountDisabled = placeBetMutation.isPending;
+    selectedMode === "Manual" && isPlaceBetPending;
+  const isBetAmountDisabled = isPlaceBetPending;
 
   const handleBetAmountKeyDown = useCallback(
     (event: KeyboardEvent<HTMLInputElement>) => {
@@ -107,7 +112,7 @@ export function useGameSidebarActions({
   const handleBetClick = useCallback(async () => {
     if (
       selectedMode === "Auto" ||
-      placeBetMutation.isPending ||
+      isPlaceBetPending ||
       isManualRoundLimitReached
     ) {
       return;
@@ -123,7 +128,7 @@ export function useGameSidebarActions({
     clearError();
 
     try {
-      await placeBetMutation.placeBet(
+      await placeBet(
         {
           amount,
           rows,
@@ -136,8 +141,8 @@ export function useGameSidebarActions({
     }
   }, [
     selectedMode,
-    placeBetMutation.isPending,
-    placeBetMutation.placeBet,
+    isPlaceBetPending,
+    placeBet,
     isManualRoundLimitReached,
     getValidatedBetAmount,
     betAmount,
@@ -159,7 +164,7 @@ export function useGameSidebarActions({
     clearError();
 
     try {
-      await autoPlay.start({
+      await startAutoPlay({
         amount,
         numberOfBets: autoBetCount,
         risk,
@@ -176,7 +181,7 @@ export function useGameSidebarActions({
     setError,
     validationMessage,
     clearError,
-    autoPlay.start,
+    startAutoPlay,
     autoBetCount,
     risk,
     rows,
@@ -185,9 +190,9 @@ export function useGameSidebarActions({
   ]);
 
   const handleMainButtonClick = useCallback(() => {
-    if (autoPlay.isPlaying) {
-      if (!autoPlay.isStopping) {
-        autoPlay.stop();
+    if (isAutoPlaying) {
+      if (!isAutoStopping) {
+        stopAutoPlay();
       }
       return;
     }
@@ -199,9 +204,9 @@ export function useGameSidebarActions({
 
     void handleBetClick();
   }, [
-    autoPlay.isPlaying,
-    autoPlay.isStopping,
-    autoPlay.stop,
+    isAutoPlaying,
+    isAutoStopping,
+    stopAutoPlay,
     selectedMode,
     handleStartAutoPlay,
     handleBetClick,
@@ -209,7 +214,7 @@ export function useGameSidebarActions({
 
   const isManualBetDisabled =
     isManualRequestPending || isManualRoundLimitReached;
-  const isSidebarDisabled = autoPlay.isPlaying || hasActiveManualRounds;
+  const isSidebarDisabled = isAutoPlaying || hasActiveManualRounds;
 
   return {
     autoPlay,
