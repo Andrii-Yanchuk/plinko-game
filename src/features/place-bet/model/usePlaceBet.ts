@@ -2,7 +2,10 @@ import { useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { placeBet as placeBetRequest } from "@/entities/bet/api/betsApi";
 import type { Bet, PlaceBetPayload } from "@/entities/bet/model/types";
-import { getCreditsFromMinimalUnits } from "@/entities/game/lib/amount";
+import {
+  formatBetAmount,
+  getCreditsFromMinimalUnits,
+} from "@/entities/game/lib/amount";
 import type { RoundContext } from "@/entities/game/model/types";
 
 type UsePlaceBetParams = {
@@ -22,7 +25,7 @@ export function usePlaceBet({
     async (payload: PlaceBetPayload, context: RoundContext) => {
       const bet = await mutateAsync(payload);
 
-      onBetAmountSettled(getCreditsFromMinimalUnits(bet.amount).toFixed(2));
+      onBetAmountSettled(formatBetAmount(getCreditsFromMinimalUnits(bet.amount)));
       await onBetPlaced(bet, context);
 
       return bet;

@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import type { GameConfig } from "@/entities/game/model/types";
 import {
+  formatBetAmount,
   getCreditsFromMinimalUnits,
   getMinimalUnitsFromCredits,
 } from "@/entities/game/lib/amount";
@@ -44,7 +45,7 @@ export function useGameSidebarConfig(config: GameConfig | undefined, rows: numbe
     minBetAmount,
     minRows,
     rowsProgress: getRowsProgress(rows, minRows, maxRows),
-    validationMessage: `Enter a bet amount between ${minBetAmount.toFixed(2)} and ${maxBetAmount.toFixed(2)}`,
+    validationMessage: `Enter a bet amount between ${formatBetAmount(minBetAmount)} and ${formatBetAmount(maxBetAmount)}`,
     getValidatedBetAmount,
   };
 }
