@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { getCompletedImpactIndex } from "@/features/game-sound/lib/soundEvents";
 import type { ActiveRound } from "@/widgets/game-screen/model/activeRound";
 import {
@@ -10,7 +10,8 @@ import {
 import {
   configureCanvas,
   type BallFrame,
-  drawPlinkoScene,
+  drawBallLayer,
+  drawPegLayer,
 } from "@/widgets/plinko-board/lib/canvas/drawing";
 import {
   getBallFrame,
@@ -34,12 +35,18 @@ export function PlinkoCanvas({
   onPegImpact,
   rows,
 }: PlinkoCanvasProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const staticCanvasRef = useRef<HTMLCanvasElement>(null);
+  const ballCanvasRef = useRef<HTMLCanvasElement>(null);
+  const ballContextRef = useRef<CanvasRenderingContext2D | null>(null);
+  const activeRoundsRef = useRef(activeRounds);
   const startedAtByRoundRef = useRef(new Map<string, number>());
   const lastImpactSoundIndexByRoundRef = useRef(new Map<string, number>());
   const completedRoundIdsRef = useRef(new Set<string>());
   const onAnimationCompleteRef = useRef(onAnimationComplete);
   const onPegImpactRef = useRef(onPegImpact);
+  const animationFrameRef = useRef(0);
+  const isLoopRunningRef = useRef(false);
+  const runFrameRef = useRef<(timestamp: number) => void>(() => {});
   const boardHeight = getBoardHeight(rows, layout);
   const boardWidth = getBoardWidth(layout);
 
@@ -50,6 +57,12 @@ export function PlinkoCanvas({
   useEffect(() => {
     onPegImpactRef.current = onPegImpact;
   }, [onPegImpact]);
+
+  // Keep the loop's view of rounds current without restarting it. Declared
+  // before the loop-kick effect so the ref is fresh when that effect runs.
+  useEffect(() => {
+    activeRoundsRef.current = activeRounds;
+  }, [activeRounds]);
 
   useEffect(() => {
     const activeRoundIds = new Set(activeRounds.map((round) => round.id));
@@ -73,49 +86,23 @@ export function PlinkoCanvas({
     });
   }, [activeRounds]);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
+  const runFrame = useCallback(
+    (timestamp: number) => {
+      const ballContext = ballContextRef.current;
 
-    if (!canvas) {
-      return;
-    }
+      if (!ballContext) {
+        isLoopRunningRef.current = false;
+        return;
+      }
 
-    const context = configureCanvas(canvas, {
-      height: boardHeight,
-      width: boardWidth,
-    });
-
-    if (!context) {
-      return;
-    }
-
-    const renderingContext: CanvasRenderingContext2D = context;
-    const sceneSize = { height: boardHeight, width: boardWidth };
-    let animationFrameId = 0;
-
-    if (!isAnimationEnabled) {
-      drawPlinkoScene(renderingContext, {
-        ...sceneSize,
-        layout,
-        rows,
-      });
-      return;
-    }
-
-    function animate(timestamp: number) {
       const ballFrames: BallFrame[] = [];
 
-      activeRounds.forEach((round) => {
+      activeRoundsRef.current.forEach((round) => {
         if (completedRoundIdsRef.current.has(round.id)) {
           return;
         }
 
-        const ballPath = getBallPath(
-          round.bet,
-          rows,
-          round.risk,
-          layout,
-        );
+        const ballPath = getBallPath(round.bet, rows, round.risk, layout);
 
         if (ballPath.length === 0) {
           completedRoundIdsRef.current.add(round.id);
@@ -127,7 +114,8 @@ export function PlinkoCanvas({
           startedAtByRoundRef.current.set(round.id, timestamp);
         }
 
-        const startedAt = startedAtByRoundRef.current.get(round.id) ?? timestamp;
+        const startedAt =
+          startedAtByRoundRef.current.get(round.id) ?? timestamp;
         const elapsedMs = timestamp - startedAt;
         const frame = getBallFrame(ballPath, elapsedMs);
         const impactSoundIndex = getCompletedImpactIndex(
@@ -154,59 +142,134 @@ export function PlinkoCanvas({
         }
       });
 
-      drawPlinkoScene(renderingContext, {
-        ...sceneSize,
+      drawBallLayer(ballContext, {
         ballFrames,
+        height: boardHeight,
         layout,
         rows,
+        width: boardWidth,
       });
 
       if (ballFrames.length === 0) {
+        isLoopRunningRef.current = false;
         return;
       }
 
-      animationFrameId = window.requestAnimationFrame(animate);
+      animationFrameRef.current = window.requestAnimationFrame(
+        runFrameRef.current,
+      );
+    },
+    [boardHeight, boardWidth, layout, rows],
+  );
+
+  // Indirect through a ref so the loop can reschedule itself without the
+  // callback referencing its own binding.
+  useEffect(() => {
+    runFrameRef.current = runFrame;
+  }, [runFrame]);
+
+  const startLoopIfNeeded = useCallback(() => {
+    if (isLoopRunningRef.current) {
+      return;
     }
 
-    drawPlinkoScene(renderingContext, {
-      ...sceneSize,
-      ballFrames: activeRounds
-        .filter((round) => !completedRoundIdsRef.current.has(round.id))
-        .map((round) => {
-          const ballPath = getBallPath(
-            round.bet,
-            rows,
-            round.risk,
-            layout,
-          );
+    const hasPendingRound = activeRoundsRef.current.some(
+      (round) => !completedRoundIdsRef.current.has(round.id),
+    );
 
-          return { ballPosition: ballPath[0] };
-        })
-        .filter(({ ballPosition }) => Boolean(ballPosition)),
+    if (!hasPendingRound) {
+      return;
+    }
+
+    isLoopRunningRef.current = true;
+    animationFrameRef.current = window.requestAnimationFrame(
+      runFrameRef.current,
+    );
+  }, []);
+
+  // Static peg layer: redrawn only when the board geometry changes.
+  useEffect(() => {
+    const canvas = staticCanvasRef.current;
+
+    if (!canvas) {
+      return;
+    }
+
+    const context = configureCanvas(canvas, {
+      height: boardHeight,
+      width: boardWidth,
+    });
+
+    if (!context) {
+      return;
+    }
+
+    drawPegLayer(context, {
+      height: boardHeight,
       layout,
       rows,
+      width: boardWidth,
     });
-    animationFrameId = window.requestAnimationFrame(animate);
+  }, [boardHeight, boardWidth, layout, rows]);
+
+  // Ball layer: configured on geometry change only, then driven by the
+  // ref-based loop so round updates never reconfigure the canvas.
+  useEffect(() => {
+    const canvas = ballCanvasRef.current;
+
+    if (!canvas) {
+      return;
+    }
+
+    const context = configureCanvas(canvas, {
+      height: boardHeight,
+      width: boardWidth,
+    });
+
+    if (!context) {
+      return;
+    }
+
+    ballContextRef.current = context;
+
+    if (!isAnimationEnabled) {
+      context.clearRect(0, 0, boardWidth, boardHeight);
+      return;
+    }
+
+    startLoopIfNeeded();
 
     return () => {
-      window.cancelAnimationFrame(animationFrameId);
+      window.cancelAnimationFrame(animationFrameRef.current);
+      isLoopRunningRef.current = false;
     };
-  }, [
-    activeRounds,
-    boardHeight,
-    boardWidth,
-    isAnimationEnabled,
-    layout,
-    rows,
-  ]);
+  }, [boardHeight, boardWidth, isAnimationEnabled, layout, rows, startLoopIfNeeded]);
+
+  // Kick the loop when new rounds arrive after it has gone idle.
+  useEffect(() => {
+    if (!isAnimationEnabled) {
+      return;
+    }
+
+    startLoopIfNeeded();
+  }, [activeRounds, isAnimationEnabled, startLoopIfNeeded]);
 
   return (
-    <canvas
-      aria-label="Plinko board"
-      className="absolute left-1/2 top-0 -translate-x-1/2"
-      height={boardHeight}
-      ref={canvasRef}
-      width={boardWidth}
-    />
+    <>
+      <canvas
+        aria-label="Plinko board"
+        className="absolute left-1/2 top-0 -translate-x-1/2"
+        height={boardHeight}
+        ref={staticCanvasRef}
+        width={boardWidth}
+      />
+      <canvas
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2"
+        height={boardHeight}
+        ref={ballCanvasRef}
+        width={boardWidth}
+      />
+    </>
   );
 }

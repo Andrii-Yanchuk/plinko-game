@@ -17,10 +17,13 @@ export type BallFrame = {
   impactProgress?: number;
 };
 
-type DrawSceneParams = CanvasSize & {
-  ballFrames?: BallFrame[];
+type SceneParams = CanvasSize & {
   layout?: BoardLayout;
   rows: number;
+};
+
+type BallLayerParams = SceneParams & {
+  ballFrames?: BallFrame[];
 };
 
 export function configureCanvas(canvas: HTMLCanvasElement, size: CanvasSize) {
@@ -102,20 +105,15 @@ function drawImpact(
   context.restore();
 }
 
-export function drawPlinkoScene(
+// Static layer: pegs never move, so this is drawn once per board geometry
+// change rather than on every animation frame.
+export function drawPegLayer(
   context: CanvasRenderingContext2D,
-  {
-    ballFrames = [],
-    height,
-    layout = "regular",
-    rows,
-    width,
-  }: DrawSceneParams,
+  { height, layout = "regular", rows, width }: SceneParams,
 ) {
   context.clearRect(0, 0, width, height);
 
   const pegRadius = getPegRadius(rows, layout);
-  const ballRadius = getBallRadius(rows, layout);
 
   for (let rowIndex = 0; rowIndex < rows; rowIndex += 1) {
     for (let pegIndex = 0; pegIndex < rowIndex + 3; pegIndex += 1) {
@@ -126,6 +124,16 @@ export function drawPlinkoScene(
       );
     }
   }
+}
+
+// Dynamic layer: cleared and redrawn each frame with only the balls/impacts.
+export function drawBallLayer(
+  context: CanvasRenderingContext2D,
+  { ballFrames = [], height, layout = "regular", rows, width }: BallLayerParams,
+) {
+  context.clearRect(0, 0, width, height);
+
+  const ballRadius = getBallRadius(rows, layout);
 
   ballFrames.forEach(({ impactPosition, impactProgress = 1 }) => {
     if (impactPosition && impactProgress < 1) {
