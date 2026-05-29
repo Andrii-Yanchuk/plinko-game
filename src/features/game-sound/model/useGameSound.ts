@@ -7,7 +7,7 @@ import { getResultSound } from "@/features/game-sound/lib/soundEvents";
 
 type PlaySound = () => void;
 
-type GameSoundApi = {
+export type GameSoundApi = {
   playBetStart: PlaySound;
   playBucketHit: PlaySound;
   playLoss: PlaySound;

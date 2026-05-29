@@ -1,108 +1,42 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Bet } from "@/entities/bet/model/types";
 import { getGameConfig } from "@/entities/game/api/gameApi";
-import type { RoundContext } from "@/entities/game/model/types";
 import type { CurrentUser } from "@/entities/user/model/types";
 import { useGameSound } from "@/features/game-sound/model/useGameSound";
-import { useGameNavigationGuardStore } from "@/features/game-navigation-guard/model/useGameNavigationGuardStore";
-import {
-  createActiveRound,
-  manualRoundLimit,
-  type ActiveRound,
-} from "@/widgets/game-screen/model/activeRound";
+import { manualRoundLimit } from "@/widgets/game-screen/model/activeRound";
+import { useActiveRounds } from "@/widgets/game-screen/model/useActiveRounds";
+import { useGameSettings } from "@/widgets/game-screen/model/useGameSettings";
+import { useMobileSidebar } from "@/widgets/game-screen/model/useMobileSidebar";
+import { useNavigationGuardSync } from "@/widgets/game-screen/model/useNavigationGuardSync";
 import { GameSidebar } from "@/widgets/game-sidebar/ui/GameSidebar";
 import { PlinkoBoard } from "@/widgets/plinko-board/ui/PlinkoBoard";
-import { delay } from "@/shared/lib/delay";
 import { useMainFullscreen } from "@/shared/lib/fullscreenContext";
 import { queryKeys } from "@/shared/lib/queryKeys";
-import { useGameScreenStore } from "@/widgets/game-screen/model/useGameScreenStore";
 
 export function GameScreen() {
   const queryClient = useQueryClient();
-  const autoRoundCompletionRef = useRef<{
-    roundId: string;
-    resolve: () => void;
-  } | null>(null);
-  const completedPresentationRoundIdsRef = useRef(new Set<string>());
   const { isFullscreen, toggleFullscreen } = useMainFullscreen();
-  const [activeRounds, setActiveRounds] = useState<ActiveRound[]>([]);
-  const activeRoundsRef = useRef(activeRounds);
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const animationsEnabled = useGameScreenStore(
-    (state) => state.animationsEnabled,
-  );
-  const rows = useGameScreenStore((state) => state.rows);
-  const risk = useGameScreenStore((state) => state.risk);
-  const soundEnabled = useGameScreenStore((state) => state.soundEnabled);
-  const setAnimationsEnabled = useGameScreenStore(
-    (state) => state.setAnimationsEnabled,
-  );
-  const setRows = useGameScreenStore((state) => state.setRows);
-  const setRisk = useGameScreenStore((state) => state.setRisk);
-  const setSoundEnabled = useGameScreenStore((state) => state.setSoundEnabled);
-  const setActiveRoundCount = useGameNavigationGuardStore(
-    (state) => state.setActiveRoundCount,
-  );
+  const {
+    animationsEnabled,
+    rows,
+    risk,
+    soundEnabled,
+    setAnimationsEnabled,
+    setRows,
+    setRisk,
+    setSoundEnabled,
+  } = useGameSettings();
   const gameSound = useGameSound(soundEnabled);
   const { data: gameConfig } = useQuery({
     queryFn: getGameConfig,
     queryKey: queryKeys.gameConfig,
   });
 
-  useEffect(() => {
-    activeRoundsRef.current = activeRounds;
-  }, [activeRounds]);
-
-  useEffect(() => {
-    setActiveRoundCount(activeRounds.length);
-  }, [activeRounds.length, setActiveRoundCount]);
-
-  useEffect(() => {
-    return () => setActiveRoundCount(0);
-  }, [setActiveRoundCount]);
-
-  useEffect(() => {
-    const activeRoundIds = new Set(activeRounds.map((round) => round.id));
-
-    completedPresentationRoundIdsRef.current.forEach((roundId) => {
-      if (!activeRoundIds.has(roundId)) {
-        completedPresentationRoundIdsRef.current.delete(roundId);
-      }
-    });
-  }, [activeRounds]);
-
-  const handleBetPresentationComplete = useCallback(
-    (roundId: string) => {
-      if (completedPresentationRoundIdsRef.current.has(roundId)) {
-        return;
-      }
-
-      const completedRound = activeRoundsRef.current.find(
-        (round) => round.id === roundId,
-      );
-
-      if (!completedRound) {
-        return;
-      }
-
-      completedPresentationRoundIdsRef.current.add(roundId);
-
-      const { bet } = completedRound;
-
-      setActiveRounds((currentRounds) =>
-        currentRounds.map((round) =>
-          round.id === completedRound.id
-            ? { ...round, isResultVisible: true }
-            : round,
-        ),
-      );
-
-      gameSound.playBucketHit();
-      gameSound.playResult(bet);
-
+  const handleRoundSettled = useCallback(
+    (bet: Bet) => {
       queryClient.setQueryData<CurrentUser>(
         queryKeys.currentUser,
         (currentUser) =>
@@ -110,57 +44,25 @@ export function GameScreen() {
             ? { ...currentUser, balance: bet.balanceAfter }
             : currentUser,
       );
-
-      void delay(completedRound.resultPauseMs).then(() => {
-        setActiveRounds((currentRounds) =>
-          currentRounds.filter((round) => round.id !== completedRound.id),
-        );
-
-        const pendingAutoRound = autoRoundCompletionRef.current;
-
-        if (pendingAutoRound?.roundId === completedRound.id) {
-          autoRoundCompletionRef.current = null;
-          pendingAutoRound.resolve();
-        }
-      });
     },
-    [gameSound, queryClient],
+    [queryClient],
   );
 
-  const handleBetPlaced = useCallback(
-    (bet: Bet, context: RoundContext) => {
-      const activeRound = createActiveRound({
-        animationsEnabled,
-        bet,
-        context,
-      });
+  const {
+    activeRounds,
+    activeManualRoundCount,
+    handleBetPlaced,
+    handleBetPresentationComplete,
+  } = useActiveRounds({
+    animationsEnabled,
+    gameSound,
+    onRoundSettled: handleRoundSettled,
+  });
 
-      gameSound.playBetStart();
-      setActiveRounds((currentRounds) => [...currentRounds, activeRound]);
+  useNavigationGuardSync(activeRounds.length);
 
-      if (context.mode === "Manual") {
-        return;
-      }
-
-      return new Promise<void>((resolve) => {
-        autoRoundCompletionRef.current = {
-          roundId: activeRound.id,
-          resolve,
-        };
-      });
-    },
-    [animationsEnabled, gameSound],
-  );
-
-  const activeManualRoundCount = activeRounds.filter(
-    (round) => round.mode === "Manual",
-  ).length;
-
-  const handleMobileClose = useCallback(
-    () => setIsMobileSidebarOpen(false),
-    [],
-  );
-  const handleMobileOpen = useCallback(() => setIsMobileSidebarOpen(true), []);
+  const { isMobileSidebarOpen, handleMobileClose, handleMobileOpen } =
+    useMobileSidebar();
 
   return (
     <section className="flex min-h-screen w-full overflow-hidden bg-[#101725] pb-16 max-md:flex-col">
